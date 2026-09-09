@@ -47,16 +47,15 @@
             </intent-filter>
         </activity>
 
-        <!-- Zero-Click Deep Link Handler for twp:// -->
+        <!-- Zero-Click Deep Link Handler for twp://, tg:// and https:// -->
         <activity
             android:name=".ui.DeepLinkActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:noHistory="true"
             android:excludeFromRecents="true"
-            android:taskAffinity=""
-            android:launchMode="singleInstance">
-            <!-- twp:// link scheme -->
+            android:launchMode="standard">
+
+            <!-- twp:// scheme (with and without authority) -->
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -64,14 +63,31 @@
                 <data android:scheme="twp" />
             </intent-filter>
 
-            <!-- tg://worker interoperability scheme -->
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="tg"
-                    android:host="worker" />
+                <data android:scheme="twp" android:host="*" />
+            </intent-filter>
+
+            <!-- tg://worker & tg://twp schemes (Clickable inside Telegram chats) -->
+            <intent-filter tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tg" android:host="worker" />
+                <data android:scheme="tg" android:host="twp" />
+                <data android:scheme="tg" android:host="proxy" />
+            </intent-filter>
+
+            <!-- Web https:// deep links (Clickable everywhere) -->
+            <intent-filter tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="bifrost.app" android:pathPrefix="/twp" />
+                <data android:scheme="https" android:host="bifrost.run" android:pathPrefix="/twp" />
+                <data android:scheme="http" android:host="bifrost.run" android:pathPrefix="/twp" />
             </intent-filter>
         </activity>
 

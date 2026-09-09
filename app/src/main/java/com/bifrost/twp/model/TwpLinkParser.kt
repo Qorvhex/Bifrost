@@ -3,50 +3,34 @@ package com.bifrost.twp.model
 import android.net.Uri
 
 /**
- * Parser and generator for the twp:// link standard (TWP: MTProto-over-WebSocket).
+ * Parser and generator for the TWP / Bifrost link standards.
  *
- * Mandatory field:
- *  - Worker Host (e.g. "my-worker.workers.dev")
- *
- * Optional fields:
- *  - clean_ip: Cloudflare Clean IP / CDN IP (e.g. "104.16.132.229")
- *  - secret: Authentication token matching Cloudflare Worker SECRET env
- *  - port: Worker port (default: 443)
- *  - name: Label/alias for the proxy configuration (fragment #Name or query ?name=Name)
+ * Supported link formats:
+ *  1. Standard Universal TWP: twp://proxy?server=<workerHost>&clean_ip=<cleanIp>&secret=<secret>#<name>
+ *  2. Direct Authority TWP:  twp://<workerHost>/?clean_ip=<cleanIp>&secret=<secret>#<name>
+ *  3. Telegram Clickable TG:  tg://worker?server=<workerHost>&clean_ip=<cleanIp>&secret=<secret>#<name>
+ *  4. Telegram Clickable TWP: tg://twp?server=<workerHost>&clean_ip=<cleanIp>&secret=<secret>#<name>
+ *  5. Web HTTPS Deep Link:   https://bifrost.app/twp?server=<workerHost>&clean_ip=<cleanIp>#<name>
  */
 object TwpLinkParser {
-
-    private const val SCHEME_TWP = "twp"
-    private const val SCHEME_TG = "tg"
 
     /**
      * Generates a standard twp:// link containing the worker host, clean IP, secret, port, and name.
      */
     fun generateLink(config: ProxyConfig): String {
         val host = config.workerHost.trim()
-        val builder = StringBuilder("twp://").append(host)
+        val builder = StringBuilder("twp://proxy?server=").append(Uri.encode(host))
 
-        if (config.port != 443) {
-            builder.append(":").append(config.port)
-        }
-
-        val queryParts = mutableListOf<String>()
-
-        // Clean IP is explicitly included as first-class query parameter
         if (!config.cleanIp.isNullOrBlank()) {
-            queryParts.add("clean_ip=${Uri.encode(config.cleanIp.trim())}")
+            builder.append("&clean_ip=").append(Uri.encode(config.cleanIp.trim()))
         }
 
         if (!config.secret.isNullOrBlank()) {
-            queryParts.add("secret=${Uri.encode(config.secret.trim())}")
+            builder.append("&secret=").append(Uri.encode(config.secret.trim()))
         }
 
         if (config.port != 443) {
-            queryParts.add("port=${config.port}")
-        }
-
-        if (queryParts.isNotEmpty()) {
-            builder.append("?").append(queryParts.joinToString("&"))
+            builder.append("&port=").append(config.port)
         }
 
         if (config.name.isNotBlank()) {
@@ -57,102 +41,108 @@ object TwpLinkParser {
     }
 
     /**
-     * Parses a link string into a [ProxyConfig].
-     * Supports both twp:// and tg://worker?... formats.
-     *
-     * @return [ProxyConfig] if parsing succeeded, or null if invalid.
+     * Generates a tg:// link that Telegram natively renders as a blue clickable link in chat.
+     */
+    fun generateTelegramLink(config: ProxyConfig): String {
+        val host = config.workerHost.trim()
+        val builder = StringBuilder("tg://worker?server=").append(Uri.encode(host))
+
+        if (!config.cleanIp.isNullOrBlank()) {
+            builder.append("&clean_ip=").append(Uri.encode(config.cleanIp.trim()))
+        }
+
+        if (!config.secret.isNullOrBlank()) {
+            builder.append("&secret=").append(Uri.encode(config.secret.trim()))
+        }
+
+        if (config.port != 443) {
+            builder.append("&port=").append(config.port)
+        }
+
+        if (config.name.isNotBlank()) {
+            builder.append("#").append(Uri.encode(config.name.trim()))
+        }
+
+        return builder.toString()
+    }
+
+    /**
+     * Universal parser that accurately extracts configuration from twp://, tg://, and https:// links.
      */
     fun parseLink(rawInput: String?): ProxyConfig? {
         if (rawInput.isNullOrBlank()) return null
         val trimmed = rawInput.trim()
 
         try {
-            // Case 1: Interoperability with tg://worker?...
-            if (trimmed.startsWith("tg://worker", ignoreCase = true)) {
-                return parseTgWorkerLink(trimmed)
+            val uri = Uri.parse(trimmed)
+            val scheme = uri.scheme?.lowercase() ?: ""
+
+            if (scheme != "twp" && scheme != "tg" && scheme != "https" && scheme != "http") {
+                return null
             }
 
-            // Case 2: Standard twp:// link
-            if (trimmed.startsWith("twp://", ignoreCase = true)) {
-                return parseTwpLink(trimmed)
+            // 1. Resolve Worker Host
+            var workerHost = uri.getQueryParameter("server")
+                ?: uri.getQueryParameter("host")
+                ?: uri.getQueryParameter("worker")
+
+            // If not found in query, check URI authority/host
+            if (workerHost.isNullOrBlank()) {
+                val host = uri.host
+                if (!host.isNullOrBlank() && host != "proxy" && host != "worker" && host != "twp" && !host.contains("bifrost")) {
+                    workerHost = host
+                }
             }
 
-            // Case 3: Raw URL or domain fallback
-            if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
-                val uri = Uri.parse(trimmed)
-                val host = uri.host ?: return null
-                return ProxyConfig(
-                    name = uri.fragment?.takeIf { it.isNotBlank() } ?: host,
-                    workerHost = host,
-                    cleanIp = uri.getQueryParameter("clean_ip")
-                        ?: uri.getQueryParameter("cleanip")
-                        ?: uri.getQueryParameter("ip"),
-                    secret = uri.getQueryParameter("secret"),
-                    port = if (uri.port > 0) uri.port else 443
-                )
+            // Fallback for custom URI like twp://hostname?clean_ip=... where host might be in scheme-specific part
+            if (workerHost.isNullOrBlank() && scheme == "twp") {
+                val ssp = uri.schemeSpecificPart.trimStart('/')
+                val qIdx = ssp.indexOf('?')
+                val fIdx = ssp.indexOf('#')
+                val endIdx = when {
+                    qIdx >= 0 && fIdx >= 0 -> minOf(qIdx, fIdx)
+                    qIdx >= 0 -> qIdx
+                    fIdx >= 0 -> fIdx
+                    else -> ssp.length
+                }
+                val candidate = ssp.substring(0, endIdx).trim()
+                if (candidate.isNotBlank() && candidate != "proxy") {
+                    workerHost = candidate
+                }
             }
 
-            return null
+            if (workerHost.isNullOrBlank()) return null
+
+            // 2. Resolve Clean IP
+            val cleanIp = uri.getQueryParameter("clean_ip")
+                ?: uri.getQueryParameter("cleanip")
+                ?: uri.getQueryParameter("clean-ip")
+                ?: uri.getQueryParameter("ip")
+                ?: uri.getQueryParameter("cdn_ip")
+
+            // 3. Resolve Secret
+            val secret = uri.getQueryParameter("secret")
+                ?: uri.getQueryParameter("token")
+
+            // 4. Resolve Port (Default: 443)
+            val port = uri.getQueryParameter("port")?.toIntOrNull()
+                ?: if (uri.port > 0) uri.port else 443
+
+            // 5. Resolve Name
+            val name = uri.fragment?.takeIf { it.isNotBlank() }
+                ?: uri.getQueryParameter("name")
+                ?: workerHost
+
+            return ProxyConfig(
+                name = name,
+                workerHost = workerHost.trim(),
+                cleanIp = cleanIp?.trim()?.takeIf { it.isNotBlank() },
+                secret = secret?.trim()?.takeIf { it.isNotBlank() },
+                port = port
+            )
         } catch (e: Exception) {
             e.printStackTrace()
             return null
         }
-    }
-
-    private fun parseTwpLink(link: String): ProxyConfig? {
-        // Replace scheme with https temporarily to use robust Android Uri parser
-        val normalized = "https://" + link.substring(6)
-        val uri = Uri.parse(normalized)
-
-        val authority = uri.authority ?: return null
-        val hostParts = authority.split(":")
-        val workerHost = hostParts[0].trim()
-        if (workerHost.isBlank()) return null
-
-        val portFromAuth = if (hostParts.size > 1) hostParts[1].toIntOrNull() else null
-        val portFromQuery = uri.getQueryParameter("port")?.toIntOrNull()
-        val port = portFromAuth ?: portFromQuery ?: 443
-
-        // Extract Clean IP from various common aliases
-        val cleanIp = uri.getQueryParameter("clean_ip")
-            ?: uri.getQueryParameter("cleanip")
-            ?: uri.getQueryParameter("clean-ip")
-            ?: uri.getQueryParameter("ip")
-            ?: uri.getQueryParameter("cdn_ip")
-
-        val secret = uri.getQueryParameter("secret")
-            ?: uri.getQueryParameter("token")
-
-        val nameFromQuery = uri.getQueryParameter("name")
-        val nameFromFragment = uri.fragment?.takeIf { it.isNotBlank() }
-        val name = nameFromFragment ?: nameFromQuery ?: workerHost
-
-        return ProxyConfig(
-            name = name,
-            workerHost = workerHost,
-            cleanIp = cleanIp?.trim()?.takeIf { it.isNotBlank() },
-            secret = secret?.trim()?.takeIf { it.isNotBlank() },
-            port = port
-        )
-    }
-
-    private fun parseTgWorkerLink(link: String): ProxyConfig? {
-        val uri = Uri.parse(link)
-        val server = uri.getQueryParameter("server")
-            ?: uri.getQueryParameter("host")
-            ?: return null
-
-        val port = uri.getQueryParameter("port")?.toIntOrNull() ?: 443
-        val secret = uri.getQueryParameter("secret")
-        val cleanIp = uri.getQueryParameter("clean_ip") ?: uri.getQueryParameter("ip")
-        val name = uri.fragment?.takeIf { it.isNotBlank() } ?: server
-
-        return ProxyConfig(
-            name = name,
-            workerHost = server.trim(),
-            cleanIp = cleanIp?.trim()?.takeIf { it.isNotBlank() },
-            secret = secret?.trim()?.takeIf { it.isNotBlank() },
-            port = port
-        )
     }
 }

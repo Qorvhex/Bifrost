@@ -37,40 +37,37 @@ jobs:
       - name: Grant Execute Permission to gradlew
         run: chmod +x ./gradlew
 
-      - name: Check Keystore Secrets Availability
-        id: check_keystore
+      - name: Setup Production Release Keystore
         run: |
-          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ] && [ -n "${{ secrets.KEY_ALIAS }}" ] && [ -n "${{ secrets.KEYSTORE_PASSWORD }}" ] && [ -n "${{ secrets.KEY_PASSWORD }}" ]; then
-            echo "has_keystore=true" >> $GITHUB_OUTPUT
-            echo "Release keystore secrets found. Preparing Release build."
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "Using custom release keystore from repository secrets..."
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release-keystore.jks
+            echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
+            echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+            echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
           else
-            echo "has_keystore=false" >> $GITHUB_OUTPUT
-            echo "Release keystore secrets not found. Falling back to Debug build."
+            echo "Generating production release keystore for signing..."
+            keytool -genkeypair -v \
+              -keystore app/release-keystore.jks \
+              -alias bifrost \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -storepass bifrost123 \
+              -keypass bifrost123 \
+              -dname "CN=Bifrost Release, OU=Security, O=Bifrost, L=San Francisco, ST=California, C=US"
+            echo "KEY_ALIAS=bifrost" >> $GITHUB_ENV
+            echo "KEYSTORE_PASSWORD=bifrost123" >> $GITHUB_ENV
+            echo "KEY_PASSWORD=bifrost123" >> $GITHUB_ENV
           fi
 
-      - name: Decode Keystore (If available)
-        if: steps.check_keystore.outputs.has_keystore == 'true'
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-        run: |
-          echo "$KEYSTORE_BASE64" | base64 --decode > app/release-keystore.jks
-
-      - name: Build Release APK
-        if: steps.check_keystore.outputs.has_keystore == 'true'
-        env:
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      - name: Build Signed Release APK
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Build Debug APK (Default or Fallback)
-        if: steps.check_keystore.outputs.has_keystore == 'false'
-        run: ./gradlew assembleDebug --stacktrace
-
-      - name: Upload APK Artifact
+      - name: Upload Signed Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: Bifrost-APK
-          path: app/build/outputs/apk/**/*.apk
+          name: Bifrost-Release-APK
+          path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30

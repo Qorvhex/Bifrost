@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Assignment
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.PowerSettingsNew
 import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,6 +64,7 @@ import com.bifrost.twp.data.ProxyRepository
 import com.bifrost.twp.model.ProxyConfig
 import com.bifrost.twp.ui.theme.CardBackground
 import com.bifrost.twp.ui.theme.CardStroke
+import com.bifrost.twp.ui.theme.DangerRed
 import com.bifrost.twp.ui.theme.DarkBackground
 import com.bifrost.twp.ui.theme.NeonCyan
 import com.bifrost.twp.ui.theme.NeonEmerald
@@ -236,6 +238,40 @@ fun MainScreen(
                             }
                         }
                     }
+                }
+
+                // Power Toggle Floating Action Button (Turn Proxy On / Off)
+                val isBridgeRunning = bridgeState != BridgeState.STOPPED
+                FloatingActionButton(
+                    onClick = {
+                        if (isBridgeRunning) {
+                            BifrostBridgeService.stop(context)
+                            Toast.makeText(context, "Proxy bridge stopped", Toast.LENGTH_SHORT).show()
+                        } else {
+                            if (activeProxy != null) {
+                                BifrostBridgeService.start(context)
+                                Toast.makeText(context, "Proxy bridge started (Zero-Idle)", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "Please select or add a worker config first", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
+                    containerColor = CardBackground,
+                    contentColor = if (isBridgeRunning) NeonEmerald else DangerRed,
+                    shape = CircleShape,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .border(
+                            width = 1.5.dp,
+                            color = if (isBridgeRunning) NeonEmerald else CardStroke,
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.PowerSettingsNew,
+                        contentDescription = if (isBridgeRunning) "Stop Proxy" else "Start Proxy",
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
 
                 // Main FAB

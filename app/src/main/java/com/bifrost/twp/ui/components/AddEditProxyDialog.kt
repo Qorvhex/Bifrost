@@ -51,7 +51,6 @@ fun AddEditProxyDialog(
     var workerHost by remember { mutableStateOf(initialConfig?.workerHost ?: "") }
     var cleanIp by remember { mutableStateOf(initialConfig?.cleanIp ?: "") }
     var secret by remember { mutableStateOf(initialConfig?.secret ?: "") }
-    var portText by remember { mutableStateOf(initialConfig?.port?.toString() ?: "443") }
 
     var hostError by remember { mutableStateOf(false) }
 
@@ -118,29 +117,15 @@ fun AddEditProxyDialog(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Secret & Port in one row
-            Row(
+            // Secret Field (Optional)
+            OutlinedTextField(
+                value = secret,
+                onValueChange = { secret = it },
+                label = { Text(stringResource(R.string.field_secret), fontSize = 12.sp) },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                OutlinedTextField(
-                    value = secret,
-                    onValueChange = { secret = it },
-                    label = { Text(stringResource(R.string.field_secret), fontSize = 12.sp) },
-                    singleLine = true,
-                    modifier = Modifier.weight(1.4f),
-                    colors = textFieldColors()
-                )
-
-                OutlinedTextField(
-                    value = portText,
-                    onValueChange = { portText = it },
-                    label = { Text(stringResource(R.string.field_port), fontSize = 12.sp) },
-                    singleLine = true,
-                    modifier = Modifier.weight(0.9f),
-                    colors = textFieldColors()
-                )
-            }
+                colors = textFieldColors()
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -167,7 +152,6 @@ fun AddEditProxyDialog(
                             return@Button
                         }
 
-                        val parsedPort = portText.toIntOrNull() ?: 443
                         val finalName = if (name.isNotBlank()) name.trim() else cleanHost
 
                         val config = initialConfig?.copy(
@@ -175,13 +159,13 @@ fun AddEditProxyDialog(
                             workerHost = cleanHost,
                             cleanIp = cleanIp.trim().takeIf { it.isNotBlank() },
                             secret = secret.trim().takeIf { it.isNotBlank() },
-                            port = parsedPort
+                            port = initialConfig.port
                         ) ?: ProxyConfig(
                             name = finalName,
                             workerHost = cleanHost,
                             cleanIp = cleanIp.trim().takeIf { it.isNotBlank() },
                             secret = secret.trim().takeIf { it.isNotBlank() },
-                            port = parsedPort
+                            port = 443
                         )
 
                         onSave(config)

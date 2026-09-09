@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -52,6 +53,7 @@ import com.bifrost.twp.ui.theme.CardBackground
 import com.bifrost.twp.ui.theme.CardStroke
 import com.bifrost.twp.ui.theme.DarkBackground
 import com.bifrost.twp.ui.theme.NeonCyan
+import com.bifrost.twp.ui.theme.NeonEmerald
 import com.bifrost.twp.ui.theme.TextMuted
 import com.bifrost.twp.ui.theme.TextPrimary
 import com.bifrost.twp.ui.theme.TextSecondary
@@ -64,6 +66,8 @@ fun ShareProxyDialog(
 ) {
     val context = LocalContext.current
     val twpLink = remember(config) { TwpLinkParser.generateLink(config) }
+    val tgLink = remember(config) { TwpLinkParser.generateTelegramLink(config) }
+
     val qrBitmap: Bitmap? = remember(twpLink) {
         QrCodeGenerator.generateQrBitmap(
             content = twpLink,
@@ -110,27 +114,27 @@ fun ShareProxyDialog(
             // QR Code Box
             Box(
                 modifier = Modifier
-                    .size(220.dp)
+                    .size(210.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(Color(0xFF090D15))
                     .border(1.dp, CardStroke, RoundedCornerShape(14.dp))
-                    .padding(14.dp),
+                    .padding(12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 if (qrBitmap != null) {
                     Image(
                         bitmap = qrBitmap.asImageBitmap(),
                         contentDescription = "Proxy QR Code",
-                        modifier = Modifier.size(192.dp)
+                        modifier = Modifier.size(186.dp)
                     )
                 } else {
                     Text("Error generating QR", color = TextMuted, fontSize = 12.sp)
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Full twp:// Link Text Box
+            // Full Link Text Box
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -138,7 +142,7 @@ fun ShareProxyDialog(
                     .background(DarkBackground)
                     .border(1.dp, CardStroke, RoundedCornerShape(8.dp))
                     .clickable {
-                        copyToClipboard(context, twpLink)
+                        copyToClipboard(context, twpLink, "twp:// link copied")
                     }
                     .padding(10.dp)
             ) {
@@ -151,16 +155,16 @@ fun ShareProxyDialog(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-            // Copy & Share System Action Buttons
+            // Copy Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
                     onClick = {
-                        copyToClipboard(context, twpLink)
+                        copyToClipboard(context, twpLink, "twp:// link copied")
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp),
@@ -169,45 +173,69 @@ fun ShareProxyDialog(
                     Icon(
                         imageVector = Icons.Outlined.ContentCopy,
                         contentDescription = null,
-                        modifier = Modifier.size(15.dp)
+                        modifier = Modifier.size(14.dp)
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.action_copy_link), fontSize = 12.sp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Copy Link", fontSize = 11.sp)
                 }
 
-                Button(
+                OutlinedButton(
                     onClick = {
-                        val sendIntent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_TEXT, twpLink)
-                            type = "text/plain"
-                        }
-                        val shareIntent = Intent.createChooser(sendIntent, "Share Bifrost Proxy")
-                        context.startActivity(shareIntent)
+                        copyToClipboard(context, tgLink, "Telegram clickable link copied")
                     },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1.1f),
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = NeonCyan,
-                        contentColor = DarkBackground
-                    )
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = NeonEmerald)
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Share,
+                        imageVector = Icons.Outlined.Send,
                         contentDescription = null,
-                        modifier = Modifier.size(15.dp)
+                        tint = NeonEmerald,
+                        modifier = Modifier.size(14.dp)
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.action_share_link), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Telegram Link", fontSize = 11.sp, color = NeonEmerald)
                 }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Share System Button
+            Button(
+                onClick = {
+                    val shareText = "$twpLink\n\nTelegram Clickable:\n$tgLink"
+                    val sendIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, shareText)
+                        type = "text/plain"
+                    }
+                    val shareIntent = Intent.createChooser(sendIntent, "Share Bifrost Proxy")
+                    context.startActivity(shareIntent)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = NeonCyan,
+                    contentColor = DarkBackground
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Share,
+                    contentDescription = null,
+                    modifier = Modifier.size(15.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(stringResource(R.string.action_share_link), fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
 }
 
-private fun copyToClipboard(context: Context, text: String) {
+private fun copyToClipboard(context: Context, text: String, message: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText("Bifrost Proxy Link", text)
     clipboard.setPrimaryClip(clip)
-    Toast.makeText(context, context.getString(R.string.msg_copied), Toast.LENGTH_SHORT).show()
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }

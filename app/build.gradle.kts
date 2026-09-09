@@ -26,9 +26,11 @@ android {
             val keystoreFile = file("release-keystore.jks")
             if (keystoreFile.exists()) {
                 storeFile = keystoreFile
-                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
-                keyAlias = System.getenv("KEY_ALIAS") ?: ""
-                keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+                storePassword = System.getenv("KEYSTORE_PASSWORD")?.takeIf { it.isNotBlank() } ?: "bifrost123"
+                keyAlias = System.getenv("KEY_ALIAS")?.takeIf { it.isNotBlank() } ?: "bifrost"
+                keyPassword = System.getenv("KEY_PASSWORD")?.takeIf { it.isNotBlank() } ?: "bifrost123"
+                enableV1Signing = true
+                enableV2Signing = true
             }
         }
     }
@@ -37,6 +39,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

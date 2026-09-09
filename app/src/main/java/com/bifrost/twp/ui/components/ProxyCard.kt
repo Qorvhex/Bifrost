@@ -218,22 +218,6 @@ fun ProxyCard(
                         )
                     }
                 }
-
-                // Port Badge
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(ChipBg)
-                        .border(1.dp, CardStroke, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 7.dp, vertical = 3.dp)
-                ) {
-                    Text(
-                        text = "Port: ${config.port}",
-                        color = TextMuted,
-                        fontSize = 11.sp
-                    )
-                }
             }
         }
     }
