@@ -202,6 +202,7 @@ fun ShareProxyDialog(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(stringResource(R.string.action_share_link), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
@@ -213,3 +214,4 @@ private fun copyToClipboard(context: Context, text: String, message: String) {
     clipboard.setPrimaryClip(clip)
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
+

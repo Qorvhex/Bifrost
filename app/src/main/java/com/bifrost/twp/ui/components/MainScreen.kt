@@ -91,6 +91,7 @@ fun MainScreen(
 
     val bridgeState by BifrostBridgeService.bridgeState.collectAsState()
     val activeConnections by BifrostBridgeService.connectionCount.collectAsState()
+    val isBridgeRunning = bridgeState != BridgeState.STOPPED
 
     // Dialog States
     var showAddEditDialog by remember { mutableStateOf(false) }
@@ -282,7 +283,6 @@ fun MainScreen(
                 }
 
                 // Power Toggle Floating Action Button (Turn Proxy On / Off)
-                val isBridgeRunning = bridgeState != BridgeState.STOPPED
                 FloatingActionButton(
                     onClick = {
                         if (isBridgeRunning) {
