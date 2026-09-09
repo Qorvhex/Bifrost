@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">Bifrost</string>
+    <string name="app_description">Ultra-lightweight Telegram SOCKS5 to Cloudflare Worker Bridge</string>
+    <string name="title_qr_scanner">Scan QR Code</string>
+
+    <!-- Notification -->
+    <string name="notification_channel_name">Bifrost Service</string>
+    <string name="notification_channel_description">Active local SOCKS5 proxy bridge status</string>
+    <string name="notification_title">Bifrost Bridge</string>
+    <string name="notification_listening">Ready &amp; Listening on 127.0.0.1:%1$d (Zero-Idle)</string>
+    <string name="notification_active">Active &amp; Streaming (%1$d active connection(s))</string>
+
+    <!-- Status -->
+    <string name="status_listening">IDLE / READY</string>
+    <string name="status_active">STREAMING</string>
+    <string name="status_stopped">STOPPED</string>
+    <string name="local_endpoint">Local SOCKS5: 127.0.0.1:%1$d</string>
+
+    <!-- Actions -->
+    <string name="action_connect_telegram">Connect Telegram</string>
+    <string name="action_add_proxy">Add Proxy</string>
+    <string name="action_add_manual">Add Manually</string>
+    <string name="action_paste_clipboard">Import from Clipboard</string>
+    <string name="action_scan_qr">Scan QR Code</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_share">Share</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_copy_link">Copy Link</string>
+    <string name="action_share_link">Share Link</string>
+
+    <!-- Form Fields -->
+    <string name="field_name">Config Name (Optional)</string>
+    <string name="field_worker_host">Worker Host / Domain (Required)</string>
+    <string name="field_clean_ip">Clean IP / CDN IP (Optional)</string>
+    <string name="field_secret">Secret Token (Optional)</string>
+    <string name="field_port">Worker Port (Default: 443)</string>
+    <string name="field_local_port">Local SOCKS5 Port</string>
+
+    <!-- Messages -->
+    <string name="msg_proxy_saved">Proxy saved successfully</string>
+    <string name="msg_proxy_activated">Proxy activated</string>
+    <string name="msg_proxy_deleted">Proxy deleted</string>
+    <string name="msg_copied">Link copied to clipboard</string>
+    <string name="msg_invalid_clipboard">No valid twp:// link found in clipboard</string>
+    <string name="msg_camera_permission_required">Camera permission is required to scan QR codes</string>
+    <string name="msg_error_empty_host">Worker Host is required</string>
+    <string name="msg_port_saved">Local port updated</string>
+    <string name="msg_no_proxies">No proxies added yet.\nTap the + button below to add a Cloudflare Worker proxy.</string>
+</resources>
