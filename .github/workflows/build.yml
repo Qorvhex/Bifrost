@@ -67,20 +67,10 @@ jobs:
         if: steps.check_keystore.outputs.has_keystore == 'false'
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Locate Output APK
-        id: find_apk
-        run: |
-          APK_PATH=$(find app/build/outputs/apk -name "*.apk" | head -n 1)
-          if [ -z "$APK_PATH" ]; then
-            echo "Error: No APK file generated!"
-            exit 1
-          fi
-          echo "Found APK at: $APK_PATH"
-          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
-
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Bifrost-APK
-          path: ${{ steps.find_apk.outputs.apk_path }}
+          path: app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
           retention-days: 14
