@@ -2,6 +2,8 @@ package com.bifrost.twp.ui.components
 
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -53,7 +55,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -120,11 +124,47 @@ fun MainScreen(
                     }
                 },
                 actions = {
+                    // Telegram Channel
+                    IconButton(onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/Qorvhex_Channel")).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            context.startActivity(intent)
+                        } catch (_: Exception) {}
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_telegram),
+                            contentDescription = "Telegram Channel",
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+
+                    // GitHub Repository
+                    IconButton(onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Qorvhex/Bifrost")).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            context.startActivity(intent)
+                        } catch (_: Exception) {}
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_github),
+                            contentDescription = "GitHub Repository",
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+
+                    // Local Port Settings
                     IconButton(onClick = { showPortDialog = true }) {
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = "Settings",
-                            tint = TextSecondary
+                            tint = TextSecondary,
+                            modifier = Modifier.size(22.dp)
                         )
                     }
                 },
@@ -246,10 +286,12 @@ fun MainScreen(
                 FloatingActionButton(
                     onClick = {
                         if (isBridgeRunning) {
+                            repository.setBridgeEnabled(false)
                             BifrostBridgeService.stop(context)
                             Toast.makeText(context, "Proxy bridge stopped", Toast.LENGTH_SHORT).show()
                         } else {
                             if (activeProxy != null) {
+                                repository.setBridgeEnabled(true)
                                 BifrostBridgeService.start(context)
                                 Toast.makeText(context, "Proxy bridge started (Zero-Idle)", Toast.LENGTH_SHORT).show()
                             } else {
@@ -258,12 +300,12 @@ fun MainScreen(
                         }
                     },
                     containerColor = CardBackground,
-                    contentColor = if (isBridgeRunning) NeonEmerald else DangerRed,
+                    contentColor = if (isBridgeRunning) NeonEmerald else DangerRed.copy(alpha = 0.85f),
                     shape = CircleShape,
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(56.dp)
                         .border(
-                            width = 1.5.dp,
+                            width = if (isBridgeRunning) 2.dp else 1.2.dp,
                             color = if (isBridgeRunning) NeonEmerald else CardStroke,
                             shape = CircleShape
                         )
@@ -271,7 +313,7 @@ fun MainScreen(
                     Icon(
                         imageVector = Icons.Outlined.PowerSettingsNew,
                         contentDescription = if (isBridgeRunning) "Stop Proxy" else "Start Proxy",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(26.dp)
                     )
                 }
 
@@ -280,11 +322,13 @@ fun MainScreen(
                     onClick = { isFabExpanded = !isFabExpanded },
                     containerColor = NeonCyan,
                     contentColor = DarkBackground,
-                    shape = CircleShape
+                    shape = CircleShape,
+                    modifier = Modifier.size(56.dp)
                 ) {
                     Icon(
                         imageVector = if (isFabExpanded) Icons.Default.Close else Icons.Default.Add,
-                        contentDescription = "Add Proxy"
+                        contentDescription = "Add Proxy",
+                        modifier = Modifier.size(26.dp)
                     )
                 }
             }
@@ -357,7 +401,9 @@ fun MainScreen(
                     config = config,
                     onSelect = {
                         repository.setActiveProxy(config.id)
-                        BifrostBridgeService.start(context)
+                        if (isBridgeRunning) {
+                            BifrostBridgeService.start(context)
+                        }
                     },
                     onEdit = {
                         editingProxy = config
@@ -389,7 +435,9 @@ fun MainScreen(
             },
             onSave = { updatedConfig ->
                 repository.addOrUpdateProxy(updatedConfig, makeActive = true)
-                BifrostBridgeService.start(context)
+                if (isBridgeRunning) {
+                    BifrostBridgeService.start(context)
+                }
                 showAddEditDialog = false
                 editingProxy = null
             }

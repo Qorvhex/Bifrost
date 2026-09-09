@@ -2,65 +2,72 @@ package com.bifrost.twp.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import com.bifrost.twp.core.BifrostBridgeService
 import com.bifrost.twp.data.ProxyRepository
 import com.bifrost.twp.model.TwpLinkParser
+import com.bifrost.twp.util.TelegramLauncher
 
 /**
- * Zero-Click Deep Link Handler.
+ * Zero-Click Deep Link Handler for twp:// links and shared configurations.
  *
- * Intercepts twp:// and tg://worker links clicked in any browser or messenger,
- * immediately activates the local bridge service in the background, and forwards
- * directly to the official Telegram proxy confirmation screen (tg://socks?server=127.0.0.1&port=5050)
- * without opening the main UI.
+ * Automatically saves and activates the incoming configuration in the background,
+ * starts the local SOCKS5 bridge, and seamlessly forwards to Telegram's native
+ * proxy setup dialog (https://t.me/socks?server=127.0.0.1&port=5050).
  */
 class DeepLinkActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        processIntent(intent)
+    }
 
-        val dataString = intent?.dataString ?: intent?.data?.toString()
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        processIntent(intent)
+    }
 
-        if (!dataString.isNullOrBlank()) {
+    private fun processIntent(incomingIntent: Intent?) {
+        val rawData = incomingIntent?.dataString
+            ?: incomingIntent?.data?.toString()
+            ?: incomingIntent?.getStringExtra(Intent.EXTRA_TEXT)
+
+        if (!rawData.isNullOrBlank()) {
             val repository = ProxyRepository.getInstance(applicationContext)
-            val parsedConfig = TwpLinkParser.parseLink(dataString)
+            val parsedConfig = TwpLinkParser.parseLink(rawData)
 
             if (parsedConfig != null) {
-                // 1. Save and activate proxy configuration immediately
+                // 1. Enable bridge state in repository
+                repository.setBridgeEnabled(true)
+
+                // 2. Save and activate proxy configuration immediately
                 repository.addOrUpdateProxy(parsedConfig, makeActive = true)
 
-                // 2. Warm up and start the local SOCKS5 bridge service
+                // 3. Start the local SOCKS5 bridge foreground service
                 BifrostBridgeService.start(applicationContext)
 
-                // 3. Immediately launch official Telegram with local SOCKS5 proxy setup
+                // 4. Forward directly to Telegram using applicationContext
                 val localPort = repository.localPortFlow.value
-                val tgUri = Uri.parse("tg://socks?server=127.0.0.1&port=$localPort")
-                val tgIntent = Intent(Intent.ACTION_VIEW, tgUri).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                }
+                TelegramLauncher.openTelegramSocks(applicationContext, localPort)
 
-                try {
-                    startActivity(tgIntent)
-                    Toast.makeText(this, "Bifrost: Connected -> ${parsedConfig.name}", Toast.LENGTH_SHORT).show()
-                } catch (_: Exception) {
-                    // Fallback to web link if scheme is unhandled
-                    try {
-                        val webUri = Uri.parse("https://t.me/socks?server=127.0.0.1&port=$localPort")
-                        startActivity(Intent(Intent.ACTION_VIEW, webUri).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        })
-                    } catch (_: Exception) {}
-                }
+                Toast.makeText(
+                    applicationContext,
+                    "Bifrost: Connected -> ${parsedConfig.name}",
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
-                Toast.makeText(this, "Bifrost: Invalid link format", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Bifrost: Invalid link format", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Close immediately without animation flicker
-        finish()
-        overridePendingTransition(0, 0)
+        // Delay finish slightly to guarantee the Telegram task intent is committed by the OS ActivityTaskManager
+        Handler(Looper.getMainLooper()).postDelayed({
+            finish()
+            overridePendingTransition(0, 0)
+        }, 200)
     }
 }

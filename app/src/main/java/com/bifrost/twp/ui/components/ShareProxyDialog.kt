@@ -66,7 +66,6 @@ fun ShareProxyDialog(
 ) {
     val context = LocalContext.current
     val twpLink = remember(config) { TwpLinkParser.generateLink(config) }
-    val tgLink = remember(config) { TwpLinkParser.generateTelegramLink(config) }
 
     val qrBitmap: Bitmap? = remember(twpLink) {
         QrCodeGenerator.generateQrBitmap(
@@ -157,14 +156,14 @@ fun ShareProxyDialog(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Copy Action Buttons
+            // Copy & Share System Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedButton(
                     onClick = {
-                        copyToClipboard(context, twpLink, "twp:// link copied")
+                        copyToClipboard(context, twpLink, "Link copied to clipboard")
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp),
@@ -173,61 +172,36 @@ fun ShareProxyDialog(
                     Icon(
                         imageVector = Icons.Outlined.ContentCopy,
                         contentDescription = null,
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(15.dp)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Copy Link", fontSize = 11.sp)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(stringResource(R.string.action_copy_link), fontSize = 12.sp)
                 }
 
-                OutlinedButton(
+                Button(
                     onClick = {
-                        copyToClipboard(context, tgLink, "Telegram clickable link copied")
+                        val sendIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, twpLink)
+                            type = "text/plain"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, "Share Bifrost Proxy")
+                        context.startActivity(shareIntent)
                     },
-                    modifier = Modifier.weight(1.1f),
+                    modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = NeonEmerald)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = NeonCyan,
+                        contentColor = DarkBackground
+                    )
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Send,
+                        imageVector = Icons.Outlined.Share,
                         contentDescription = null,
-                        tint = NeonEmerald,
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(15.dp)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Telegram Link", fontSize = 11.sp, color = NeonEmerald)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Share System Button
-            Button(
-                onClick = {
-                    val shareText = "$twpLink\n\nTelegram Clickable:\n$tgLink"
-                    val sendIntent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, shareText)
-                        type = "text/plain"
-                    }
-                    val shareIntent = Intent.createChooser(sendIntent, "Share Bifrost Proxy")
-                    context.startActivity(shareIntent)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(40.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = NeonCyan,
-                    contentColor = DarkBackground
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Share,
-                    contentDescription = null,
-                    modifier = Modifier.size(15.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(stringResource(R.string.action_share_link), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(stringResource(R.string.action_share_link), fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

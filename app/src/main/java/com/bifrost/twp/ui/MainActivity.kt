@@ -36,6 +36,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        handleIntent(intent)
+
         setContent {
             BifrostTheme {
                 MainScreen(
@@ -45,6 +47,27 @@ class MainActivity : ComponentActivity() {
                         startActivity(intent)
                     }
                 )
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        val raw = intent?.dataString ?: intent?.data?.toString() ?: intent?.getStringExtra(Intent.EXTRA_TEXT)
+        if (!raw.isNullOrBlank()) {
+            val config = com.bifrost.twp.model.TwpLinkParser.parseLink(raw)
+            if (config != null) {
+                repository.setBridgeEnabled(true)
+                repository.addOrUpdateProxy(config, makeActive = true)
+                com.bifrost.twp.core.BifrostBridgeService.start(this)
+                val localPort = repository.localPortFlow.value
+                com.bifrost.twp.util.TelegramLauncher.openTelegramSocks(this, localPort)
+                android.widget.Toast.makeText(this, "Bifrost: Connected -> ${config.name}", android.widget.Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -87,6 +87,8 @@ class BifrostBridgeService : Service() {
         currentPort = repository.localPortFlow.value
         currentActiveProxy = repository.activeProxyFlow.value
 
+        repository.setBridgeEnabled(true)
+
         startForeground(NOTIFICATION_ID, buildNotification(BridgeState.LISTENING, 0))
         _serviceRunning.value = true
         _bridgeState.value = BridgeState.LISTENING
@@ -117,6 +119,7 @@ class BifrostBridgeService : Service() {
     }
 
     private fun stopBridge() {
+        repository.setBridgeEnabled(false)
         socks5Server?.stop()
         socks5Server = null
         _serviceRunning.value = false
@@ -142,16 +145,7 @@ class BifrostBridgeService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val tgUri = Uri.parse("tg://socks?server=127.0.0.1&port=$currentPort")
-        val openTgIntent = Intent(Intent.ACTION_VIEW, tgUri).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        val openTgPendingIntent = PendingIntent.getActivity(
-            this,
-            1,
-            openTgIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val openTgPendingIntent = com.bifrost.twp.util.TelegramLauncher.createPendingIntent(this, currentPort)
 
         val contentText = when (state) {
             BridgeState.STREAMING -> getString(R.string.notification_active, activeConnections)

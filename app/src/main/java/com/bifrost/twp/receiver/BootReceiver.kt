@@ -15,7 +15,7 @@ class BootReceiver : BroadcastReceiver() {
         val action = intent.action
         if (action == Intent.ACTION_BOOT_COMPLETED || action == Intent.ACTION_MY_PACKAGE_REPLACED) {
             val repository = ProxyRepository.getInstance(context)
-            if (repository.activeProxyFlow.value != null) {
+            if (repository.isBridgeEnabledFlow.value && repository.activeProxyFlow.value != null) {
                 BifrostBridgeService.start(context)
             }
         }

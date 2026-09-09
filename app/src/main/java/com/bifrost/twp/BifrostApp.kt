@@ -10,8 +10,8 @@ class BifrostApp : Application() {
         super.onCreate()
 
         val repository = ProxyRepository.getInstance(this)
-        // If an active proxy is already selected, warm up and start the local bridge service
-        if (repository.activeProxyFlow.value != null) {
+        // Only start if the user had explicitly turned on the bridge
+        if (repository.isBridgeEnabledFlow.value && repository.activeProxyFlow.value != null) {
             BifrostBridgeService.start(this)
         }
     }

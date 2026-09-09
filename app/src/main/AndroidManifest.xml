@@ -21,6 +21,25 @@
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
+    <!-- Package Visibility Queries for Telegram (Android 11+ / API 30+) -->
+    <queries>
+        <package android:name="org.telegram.messenger" />
+        <package android:name="org.telegram.messenger.web" />
+        <package android:name="org.telegram.messenger.beta" />
+        <package android:name="org.telegram.plus" />
+        <package android:name="org.thunderdog.challegram" />
+        <package android:name="nekox.messenger" />
+        <package android:name="org.forkclient.messenger" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="tg" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" android:host="t.me" />
+        </intent>
+    </queries>
+
     <application
         android:name=".BifrostApp"
         android:allowBackup="true"
@@ -47,15 +66,16 @@
             </intent-filter>
         </activity>
 
-        <!-- Zero-Click Deep Link Handler for twp://, tg:// and https:// -->
+        <!-- Zero-Click Deep Link Handler for twp:// and shared links -->
         <activity
             android:name=".ui.DeepLinkActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:excludeFromRecents="true"
+            android:noHistory="true"
             android:launchMode="standard">
 
-            <!-- twp:// scheme (with and without authority) -->
+            <!-- twp:// scheme -->
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -63,31 +83,11 @@
                 <data android:scheme="twp" />
             </intent-filter>
 
-            <intent-filter tools:ignore="AppLinkUrlError">
-                <action android:name="android.intent.action.VIEW" />
+            <!-- Share Sheet handler for text/links shared directly to Bifrost -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="twp" android:host="*" />
-            </intent-filter>
-
-            <!-- tg://worker & tg://twp schemes (Clickable inside Telegram chats) -->
-            <intent-filter tools:ignore="AppLinkUrlError">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="tg" android:host="worker" />
-                <data android:scheme="tg" android:host="twp" />
-                <data android:scheme="tg" android:host="proxy" />
-            </intent-filter>
-
-            <!-- Web https:// deep links (Clickable everywhere) -->
-            <intent-filter tools:ignore="AppLinkUrlError">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="bifrost.app" android:pathPrefix="/twp" />
-                <data android:scheme="https" android:host="bifrost.run" android:pathPrefix="/twp" />
-                <data android:scheme="http" android:host="bifrost.run" android:pathPrefix="/twp" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
 

@@ -28,6 +28,9 @@ class ProxyRepository private constructor(context: Context) {
     private val _localPortFlow = MutableStateFlow(DEFAULT_LOCAL_PORT)
     val localPortFlow: StateFlow<Int> = _localPortFlow.asStateFlow()
 
+    private val _isBridgeEnabledFlow = MutableStateFlow(false)
+    val isBridgeEnabledFlow: StateFlow<Boolean> = _isBridgeEnabledFlow.asStateFlow()
+
     init {
         loadData()
     }
@@ -36,6 +39,9 @@ class ProxyRepository private constructor(context: Context) {
     private fun loadData() {
         val port = prefs.getInt(KEY_LOCAL_PORT, DEFAULT_LOCAL_PORT)
         _localPortFlow.value = port
+
+        val bridgeEnabled = prefs.getBoolean(KEY_BRIDGE_ENABLED, false)
+        _isBridgeEnabledFlow.value = bridgeEnabled
 
         val rawJson = prefs.getString(KEY_PROXIES, null)
         val list = mutableListOf<ProxyConfig>()
@@ -135,6 +141,12 @@ class ProxyRepository private constructor(context: Context) {
         _localPortFlow.value = validPort
     }
 
+    @Synchronized
+    fun setBridgeEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_BRIDGE_ENABLED, enabled).apply()
+        _isBridgeEnabledFlow.value = enabled
+    }
+
     /**
      * Imports a proxy from a twp:// or tg:// link.
      */
@@ -149,6 +161,7 @@ class ProxyRepository private constructor(context: Context) {
         private const val KEY_PROXIES = "key_proxies_json"
         private const val KEY_ACTIVE_ID = "key_active_proxy_id"
         private const val KEY_LOCAL_PORT = "key_local_socks5_port"
+        private const val KEY_BRIDGE_ENABLED = "key_bridge_enabled"
         const val DEFAULT_LOCAL_PORT = 5050
 
         @Volatile

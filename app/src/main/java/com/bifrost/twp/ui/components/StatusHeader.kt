@@ -189,17 +189,7 @@ fun StatusHeader(
             // Quick Connect to Telegram Button
             Button(
                 onClick = {
-                    val tgUri = Uri.parse("tg://socks?server=127.0.0.1&port=$localPort")
-                    val intent = Intent(Intent.ACTION_VIEW, tgUri).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
-                    try {
-                        context.startActivity(intent)
-                    } catch (_: Exception) {
-                        // Fallback to web link if scheme fails
-                        val webUri = Uri.parse("https://t.me/socks?server=127.0.0.1&port=$localPort")
-                        context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
-                    }
+                    com.bifrost.twp.util.TelegramLauncher.openTelegramSocks(context, localPort)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
