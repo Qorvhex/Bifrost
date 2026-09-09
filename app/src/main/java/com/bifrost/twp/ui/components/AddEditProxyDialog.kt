@@ -158,8 +158,7 @@ fun AddEditProxyDialog(
                             name = finalName,
                             workerHost = cleanHost,
                             cleanIp = cleanIp.trim().takeIf { it.isNotBlank() },
-                            secret = secret.trim().takeIf { it.isNotBlank() },
-                            port = initialConfig.port
+                            secret = secret.trim().takeIf { it.isNotBlank() }
                         ) ?: ProxyConfig(
                             name = finalName,
                             workerHost = cleanHost,

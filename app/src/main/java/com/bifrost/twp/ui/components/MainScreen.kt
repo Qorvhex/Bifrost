@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bifrost.twp.R
 import com.bifrost.twp.core.BifrostBridgeService
+import com.bifrost.twp.core.BridgeState
 import com.bifrost.twp.data.ProxyRepository
 import com.bifrost.twp.model.ProxyConfig
 import com.bifrost.twp.ui.theme.CardBackground
