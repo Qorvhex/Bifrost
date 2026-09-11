@@ -1,0 +1,30 @@
+# Binaries and build artifacts
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+test-*
+bifrost
+
+# Private keys & certificates (Strict security)
+*.key
+*.pfx
+*.pem
+certs/*.key
+certs/*.pfx
+
+# Local user configs
+bifrost_config.json
+
+# Archives
+*.zip
+*.tar.gz
+*.7z
+
+# IDE & OS files
+.idea/
+.vscode/
+Thumbs.db
+Desktop.ini

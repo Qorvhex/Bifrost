@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bifrost — MTProto WebSocket Bridge</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="top-nav">
+      <div class="brand">
+        <img src="/logo.png" alt="Bifrost" class="brand-logo">
+        <div>
+          <div class="brand-title">BIFROST</div>
+          <div class="brand-subtitle">TWP Cloudflare Bridge (Windows)</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="btnUpdate" title="بررسی به‌روزرسانی" onclick="checkUpdateManual()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          <div class="update-badge" id="updateBadge"></div>
+        </button>
+        <button class="icon-btn" id="btnPing" title="تست پینگ ورکر" onclick="pingActiveWorker()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </button>
+        <button class="icon-btn" title="تنظیمات پورت و شبکه" onclick="openSettingsModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Hero Status Card -->
+    <section class="card">
+      <div class="status-top-row">
+        <div id="statusPill" class="status-pill stopped">
+          <div class="pulse-dot"></div>
+          <span id="statusText">متوقف</span>
+        </div>
+        <div class="status-right-group">
+          <span id="pingBadgeSlot"></span>
+          <div class="endpoint-tag" id="endpointTag">127.0.0.1:5050</div>
+        </div>
+      </div>
+
+      <!-- Action Row: Add Worker Button + Power Button -->
+      <div class="action-row">
+        <button class="btn-add-worker" onclick="openAddWorkerModal()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>افزودن لینک ورکر</span>
+        </button>
+        <button class="btn-power stopped" id="btnPower" onclick="toggleBridge()" title="روشن کردن پل">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+        </button>
+      </div>
+
+      <!-- Configs List: Stacked vertically below action buttons -->
+      <div class="configs-container" id="configsContainer">
+        <!-- Dynamically rendered by JS: all configs visible -->
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal: Add / Edit Proxy -->
+  <div class="modal-overlay" id="modalEdit">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">تنظیمات ورکر کلادفلر</div>
+        <button class="btn-action-icon" onclick="closeModal('modalEdit')">✕</button>
+      </div>
+      <form onsubmit="saveProxyForm(event)">
+        <div class="form-group">
+          <label class="form-label">لینک یا دامنه ورکر کلادفلر *</label>
+          <input type="text" id="editHost" class="form-input" placeholder="آدرس دامنه یا لینک twp://..." oninput="handleHostInputPaste(this)" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">نام دلخواه (اختیاری)</label>
+          <input type="text" id="editName" class="form-input" placeholder="مثال: سرور ۱">
+        </div>
+        <div class="form-group">
+          <label class="form-label">آی‌پی تمیز / Clean IP (اختیاری)</label>
+          <input type="text" id="editCleanIp" class="form-input" placeholder="مثال: 104.16.132.229">
+        </div>
+        <div class="form-group">
+          <label class="form-label">سکرت توکن (Secret Token - اختیاری)</label>
+          <input type="password" id="editSecret" class="form-input" placeholder="در صورت وجود Secret در ورکر">
+        </div>
+        <input type="hidden" id="editPort" value="443">
+        <div class="modal-buttons">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalEdit')">انصراف</button>
+          <button type="submit" class="btn-primary">ذخیره و فعال‌سازی</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Settings (Port) -->
+  <div class="modal-overlay" id="modalSettings">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">تنظیمات پورت محلی</div>
+        <button class="btn-action-icon" onclick="closeModal('modalSettings')">✕</button>
+      </div>
+      <form onsubmit="saveSettingsForm(event)">
+        <div class="form-group">
+          <label class="form-label">پورت محلی ساکس۵ (Local SOCKS5 Port)</label>
+          <input type="number" id="settingsPort" class="form-input" min="1024" max="65535" value="5050" required>
+          <div class="form-help">پورت پیش‌فرض ۵۰۵۰ است. تلگرام را روی این پورت تنظیم کنید.</div>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="btn-secondary" onclick="resetDefaultPort()" title="بازنشانی پورت پیش‌فرض ۵۰۵۰">پیش‌فرض (۵۰۵۰)</button>
+          <button type="button" class="btn-secondary" onclick="closeModal('modalSettings')">انصراف</button>
+          <button type="submit" class="btn-primary">ذخیره تنظیمات</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Confirm Delete Config -->
+  <div class="modal-overlay" id="modalConfirmDelete">
+    <div class="modal-content" style="max-width: 340px;">
+      <div class="modal-header">
+        <div class="modal-title" style="color: var(--danger-neon); display: flex; align-items: center; gap: 6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span>حذف کانفیگ</span>
+        </div>
+        <button class="btn-action-icon" onclick="closeModal('modalConfirmDelete')">✕</button>
+      </div>
+      <div style="padding: 6px 0 10px 0;">
+        <p style="font-size: 12.5px; color: var(--text-main); line-height: 1.6; margin: 0 0 4px 0;">
+          آیا از حذف کانفیگ <strong id="deleteTargetName" style="color: #FFFFFF;"></strong> اطمینان دارید؟
+        </p>
+        <div style="font-size: 11px; color: var(--text-muted);">این عملیات قابل بازگشت نیست.</div>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalConfirmDelete')">انصراف</button>
+        <button type="button" class="btn-danger-neon" onclick="executeConfirmedDelete()">حذف قطعی</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Auto Update -->
+  <div class="modal-overlay" id="modalUpdate">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">به‌روزرسانی نرم‌افزار</div>
+        <button class="btn-action-icon" onclick="closeModal('modalUpdate')">✕</button>
+      </div>
+      <div style="padding: 10px 0;">
+        <div class="update-info-card">
+          <div class="update-version-row">
+            <span class="update-label">نسخه جدید:</span>
+            <span class="update-val-new" id="updateNewVer">v2.3.0</span>
+          </div>
+          <div class="update-version-row">
+            <span class="update-label">نسخه فعلی شما:</span>
+            <span class="update-val-cur" id="updateCurVer">v2.2.0</span>
+          </div>
+          <div class="update-changelog-box" id="updateChangelog"></div>
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="btn-secondary" onclick="openDirectDownloadLink()" title="دانلود فایل نصبی نسخه جدید">دانلود مستقیم فایل نصبی</button>
+        <button type="button" class="btn-primary" id="btnApplyUpdate" onclick="applyUpdateNow()">به‌روزرسانی خودکار و راه‌اندازی مجدد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

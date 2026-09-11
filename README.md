@@ -8,14 +8,35 @@
 *پل ارتباطی محلی، فوق‌سبک و بهینه میان تلگرام و ورکر کلادفلر بدون نیاز به فیلترشکن و روت*
 
 [![Telegram Channel](https://img.shields.io/badge/Telegram-Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/Qorvhex_Channel)
-[![GitHub Repository](https://img.shields.io/badge/GitHub-Qorvhex%2FBifrost-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Qorvhex/Bifrost)
-[![Platform](https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/Qorvhex/Bifrost)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.20-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-BlueCat--dev%2FBifrost--Windows-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/BlueCat-dev/Bifrost-Windows)
+[![Platform Android](https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](app/)
+[![Platform Windows](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](windows/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-[**فارسی (Persian)**](#-بخش-فارسی-persian) | [**English**](#-english-section)
+[**نسخه ویندوز (Windows Client)**](#-bifrost-for-windows-desktop) | [**فارسی (Persian)**](#-بخش-فارسی-persian) | [**English**](#-english-section)
 
 </div>
+
+---
+
+<a name="windows-section"></a>
+# 🖥️ Bifrost for Windows (Desktop Client)
+
+A high-performance, native Windows desktop client built from scratch in Go and Microsoft WebView2.
+
+### 📥 Direct Downloads for Windows:
+* 🚀 **[Download Official Setup Installer (Bifrost-Setup.exe)](https://hermes.miladiran.online/f/Bifrost-Setup.exe)** (Recommended)
+* ⚡ **[Download Portable Single Executable (Bifrost.exe)](https://hermes.miladiran.online/f/Bifrost.exe)**
+
+### 🌟 Windows Highlights:
+* **Native Desktop Window:** Independent Microsoft WebView2 UI with zero external browser popups.
+* **Embedded Persian Typography:** Fully offline [Vazirmatn](https://github.com/rastikerdar/vazirmatn) font embedded inside the binary.
+* **Vertical Stacked Configs:** All saved worker configs visible at once with radio selection and inline edit/delete.
+* **In-App Self-Updater:** Background version check with notification indicator and automatic proxy-aware updates.
+* **Bulletproof Networking:** Zero zombie sockets upon disconnection, instant TLS ping probe, and Anti-CSRF/Anti-DNS Rebinding security guard.
+* **Authenticode Signed:** Formally signed with DigiCert RFC 3161 timestamp.
+
+For source code, architecture, and build instructions, see the [`windows/`](windows/) directory.
 
 ---
 
