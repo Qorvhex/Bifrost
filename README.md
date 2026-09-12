@@ -10,6 +10,7 @@
 [![Telegram Channel](https://img.shields.io/badge/Telegram-Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/Qorvhex_Channel)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Qorvhex%2FBifrost-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Qorvhex/Bifrost)
 [![Platform](https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/Qorvhex/Bifrost)
+[![Desktop](https://img.shields.io/badge/Desktop-Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/BlueCat-dev/Bifrost-Windows)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.20-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
@@ -157,6 +158,14 @@ cd Bifrost
 The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
 
 ---
+
+## 🖥️ Desktop Clients
+
+Looking for a desktop client? Check out the community-maintained Windows desktop version:
+
+- 🪟 **[Bifrost for Windows (Bifrost-Windows)](https://github.com/BlueCat-dev/Bifrost-Windows)**: A native, lightweight Windows desktop client built in Go and Microsoft WebView2. Operates as a local SOCKS5 bridge (`127.0.0.1:5050`) with embedded offline Vazirmatn font, vertical configuration manager, and verified background updates.
+
+---
 ---
 
 <a name="بخش-فارسی-persian"></a>
@@ -242,6 +251,14 @@ twp://[secret@]workerHost[:port]?clean_ip=cleanIp#نام_کانفیگ
    - **پورت (Port):** `5050`
    - **نام کاربری و رمز عبور:** خالی
 4. روی **Enable Proxy** کلیک کنید. اتصال تلگرام اکنون برقرار است!
+
+---
+
+## 🖥️ نسخه دسکتاپ (ویندوز)
+
+اگر به دنبال استفاده از بایفراست روی رایانه و سیستم‌عامل ویندوز هستید، می‌توانید از نسخه نیتیو دسکتاپ استفاده کنید:
+
+- 🪟 **[کلاینت ویندوز بایفراست (Bifrost for Windows)](https://github.com/BlueCat-dev/Bifrost-Windows)**: کلاینت بومی و سبک ویندوز توسعه‌یافته با زبان Go و Microsoft WebView2، دارای پل ارتباطی لوکال SOCKS5، فونت بهینه وزیرمتن، مدیریت آسان کانفیگ‌ها و به‌روزرسانی خودکار درون‌برنامه‌ای.
 
 ---
 
