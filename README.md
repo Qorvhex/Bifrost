@@ -155,6 +155,11 @@ cd Bifrost
 ./gradlew assembleDebug
 ```
 The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
+---
+
+## 🖥️ Community Desktop Clients (Unofficial)
+
+- [Bifrost for Windows](https://github.com/BlueCat-dev/Bifrost-Windows): Independent third-party client. *Note: This port is independently developed; the Bifrost core project does not audit, maintain, or assume any liability for third-party binaries. Use at your own risk.*
 
 ---
 ---
@@ -242,6 +247,11 @@ twp://[secret@]workerHost[:port]?clean_ip=cleanIp#نام_کانفیگ
    - **پورت (Port):** `5050`
    - **نام کاربری و رمز عبور:** خالی
 4. روی **Enable Proxy** کلیک کنید. اتصال تلگرام اکنون برقرار است!
+---
+
+## 🖥️ نسخه‌های دسکتاپ جامعه کاربری (غیررسمی)
+
+- [کلاینت ویندوز بایفراست](https://github.com/BlueCat-dev/Bifrost-Windows): کلاینت مستقل و غیررسمی برای ویندوز. *(تذکر: این نسخه توسط توسعه‌دهنده شخص ثالث ساخته شده و پروژه بایفراست هیچ‌گونه نظارت، مسئولیت یا تضمینی در قبال امنیت، کدها و عملکرد آن ندارد و استفاده از آن با مسئولیت خود کاربر است).*
 
 ---
 
