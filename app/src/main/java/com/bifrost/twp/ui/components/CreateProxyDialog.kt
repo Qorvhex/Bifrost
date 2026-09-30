@@ -52,10 +52,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.bifrost.twp.R
 import com.bifrost.twp.model.ProxyConfig
+import com.bifrost.twp.ui.theme.BifrostTheme
 import com.bifrost.twp.ui.theme.CardBackground
 import com.bifrost.twp.ui.theme.CardStroke
 import com.bifrost.twp.ui.theme.DangerRed
 import com.bifrost.twp.ui.theme.DarkBackground
+import com.bifrost.twp.ui.theme.LocalAppLanguage
 import com.bifrost.twp.ui.theme.NeonCyan
 import com.bifrost.twp.ui.theme.NeonEmerald
 import com.bifrost.twp.ui.theme.TextMuted
@@ -81,9 +83,6 @@ fun CreateProxyDialog(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var createdProxy by remember { mutableStateOf<ProxyConfig?>(null) }
 
-    val emptyTokenMsg = stringResource(R.string.cf_err_empty_token)
-    val defaultDeployErrorMsg = stringResource(R.string.cf_err_deploy_failed)
-
     // Direct Cloudflare URL with pre-selected Workers Scripts permissions
     val cfTokenUrl =
         "https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%5D&accountId=*&zoneId=all&name=Bifrost%20Proxy%20Token"
@@ -94,15 +93,19 @@ fun CreateProxyDialog(
         },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Box(
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
-                .background(CardBackground)
-                .border(1.dp, CardStroke, RoundedCornerShape(20.dp))
-                .padding(20.dp)
-        ) {
+        BifrostTheme(language = LocalAppLanguage.current) {
+            val emptyTokenMsg = stringResource(R.string.cf_err_empty_token)
+            val defaultDeployErrorMsg = stringResource(R.string.cf_err_deploy_failed)
+
+            Box(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(CardBackground)
+                    .border(1.dp, CardStroke, RoundedCornerShape(20.dp))
+                    .padding(20.dp)
+            ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -409,4 +412,5 @@ fun CreateProxyDialog(
             }
         }
     }
+}
 }

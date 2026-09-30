@@ -31,10 +31,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bifrost.twp.R
 import com.bifrost.twp.model.ProxyConfig
+import com.bifrost.twp.ui.theme.BifrostTheme
 import com.bifrost.twp.ui.theme.CardBackground
 import com.bifrost.twp.ui.theme.CardStroke
 import com.bifrost.twp.ui.theme.DarkBackground
 import com.bifrost.twp.ui.theme.DangerRed
+import com.bifrost.twp.ui.theme.LocalAppLanguage
 import com.bifrost.twp.ui.theme.NeonCyan
 import com.bifrost.twp.ui.theme.NeonEmerald
 import com.bifrost.twp.ui.theme.TextMuted
@@ -55,14 +57,15 @@ fun AddEditProxyDialog(
     var hostError by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .background(CardBackground)
-                .border(1.dp, CardStroke, RoundedCornerShape(18.dp))
-                .padding(20.dp)
-        ) {
+        BifrostTheme(language = LocalAppLanguage.current) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(CardBackground)
+                    .border(1.dp, CardStroke, RoundedCornerShape(18.dp))
+                    .padding(20.dp)
+            ) {
             Text(
                 text = if (initialConfig == null) stringResource(R.string.dialog_add_proxy_title) else stringResource(R.string.dialog_edit_proxy_title),
                 color = TextPrimary,
@@ -180,6 +183,7 @@ fun AddEditProxyDialog(
             }
         }
     }
+}
 }
 
 @Composable

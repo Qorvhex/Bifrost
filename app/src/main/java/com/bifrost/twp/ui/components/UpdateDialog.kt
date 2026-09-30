@@ -34,9 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bifrost.twp.R
+import com.bifrost.twp.ui.theme.BifrostTheme
 import com.bifrost.twp.ui.theme.CardBackground
 import com.bifrost.twp.ui.theme.CardStroke
 import com.bifrost.twp.ui.theme.DarkBackground
+import com.bifrost.twp.ui.theme.LocalAppLanguage
 import com.bifrost.twp.ui.theme.NeonCyan
 import com.bifrost.twp.ui.theme.TextMuted
 import com.bifrost.twp.ui.theme.TextPrimary
@@ -51,14 +53,15 @@ fun UpdateDialog(
     val context = LocalContext.current
 
     Dialog(onDismissRequest = onDismiss) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .background(CardBackground)
-                .border(1.dp, CardStroke, RoundedCornerShape(18.dp))
-                .padding(20.dp)
-        ) {
+        BifrostTheme(language = LocalAppLanguage.current) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(CardBackground)
+                    .border(1.dp, CardStroke, RoundedCornerShape(18.dp))
+                    .padding(20.dp)
+            ) {
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -145,4 +148,5 @@ fun UpdateDialog(
             }
         }
     }
+}
 }

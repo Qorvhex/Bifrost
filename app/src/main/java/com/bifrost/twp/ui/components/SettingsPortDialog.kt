@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.bifrost.twp.R
+import com.bifrost.twp.ui.theme.BifrostTheme
 import com.bifrost.twp.ui.theme.CardBackground
 import com.bifrost.twp.ui.theme.CardStroke
 import com.bifrost.twp.ui.theme.DarkBackground
@@ -75,15 +76,16 @@ fun SettingsDialog(
     var error by remember { mutableStateOf<String?>(null) }
 
     Dialog(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .background(CardBackground)
-                .border(1.dp, CardStroke, RoundedCornerShape(18.dp))
-                .padding(20.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
+        BifrostTheme(language = currentLanguage) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(CardBackground)
+                    .border(1.dp, CardStroke, RoundedCornerShape(18.dp))
+                    .padding(20.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
             // Header
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -312,6 +314,7 @@ fun SettingsDialog(
             }
         }
     }
+}
 }
 
 @Composable

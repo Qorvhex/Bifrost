@@ -85,6 +85,17 @@ class QrScannerActivity : ComponentActivity() {
             }
         }
 
+    override fun attachBaseContext(newBase: android.content.Context) {
+        val prefs = newBase.getSharedPreferences("bifrost_preferences", android.content.Context.MODE_PRIVATE)
+        val lang = prefs.getString("key_app_language", "en") ?: "en"
+        val locale = java.util.Locale(lang)
+        java.util.Locale.setDefault(locale)
+        val config = android.content.res.Configuration(newBase.resources.configuration)
+        config.setLocale(locale)
+        config.setLayoutDirection(locale)
+        super.attachBaseContext(newBase.createConfigurationContext(config))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

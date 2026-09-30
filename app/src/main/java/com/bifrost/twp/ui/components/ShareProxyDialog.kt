@@ -49,9 +49,11 @@ import androidx.compose.ui.window.Dialog
 import com.bifrost.twp.R
 import com.bifrost.twp.model.ProxyConfig
 import com.bifrost.twp.model.TwpLinkParser
+import com.bifrost.twp.ui.theme.BifrostTheme
 import com.bifrost.twp.ui.theme.CardBackground
 import com.bifrost.twp.ui.theme.CardStroke
 import com.bifrost.twp.ui.theme.DarkBackground
+import com.bifrost.twp.ui.theme.LocalAppLanguage
 import com.bifrost.twp.ui.theme.NeonCyan
 import com.bifrost.twp.ui.theme.NeonEmerald
 import com.bifrost.twp.ui.theme.TextMuted
@@ -64,11 +66,7 @@ fun ShareProxyDialog(
     config: ProxyConfig,
     onDismiss: () -> Unit
 ) {
-    val context = LocalContext.current
     val twpLink = remember(config) { TwpLinkParser.generateLink(config) }
-    val linkCopiedMsg = stringResource(R.string.msg_copied)
-    val twpCopiedMsg = stringResource(R.string.msg_twp_link_copied)
-    val shareChooserTitle = stringResource(R.string.share_chooser_title)
 
     val qrBitmap: Bitmap? = remember(twpLink) {
         QrCodeGenerator.generateQrBitmap(
@@ -80,15 +78,21 @@ fun ShareProxyDialog(
     }
 
     Dialog(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .background(CardBackground)
-                .border(1.dp, CardStroke, RoundedCornerShape(18.dp))
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        BifrostTheme(language = LocalAppLanguage.current) {
+            val context = LocalContext.current
+            val linkCopiedMsg = stringResource(R.string.msg_copied)
+            val twpCopiedMsg = stringResource(R.string.msg_twp_link_copied)
+            val shareChooserTitle = stringResource(R.string.share_chooser_title)
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(CardBackground)
+                    .border(1.dp, CardStroke, RoundedCornerShape(18.dp))
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
             // Header Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -209,6 +213,7 @@ fun ShareProxyDialog(
             }
         }
     }
+}
 }
 
 private fun copyToClipboard(context: Context, text: String, message: String) {

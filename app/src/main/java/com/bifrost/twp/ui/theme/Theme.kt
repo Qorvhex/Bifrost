@@ -30,6 +30,8 @@ private val DarkColorScheme = darkColorScheme(
     outlineVariant = CardStrokeActive
 )
 
+val LocalAppLanguage = androidx.compose.runtime.compositionLocalOf { "en" }
+
 @Composable
 fun BifrostTheme(
     language: String = "en",
@@ -56,6 +58,7 @@ fun BifrostTheme(
     val layoutDirection = if (language == "fa") LayoutDirection.Rtl else LayoutDirection.Ltr
 
     CompositionLocalProvider(
+        LocalAppLanguage provides language,
         LocalConfiguration provides config,
         LocalContext provides localizedContext,
         LocalLayoutDirection provides layoutDirection

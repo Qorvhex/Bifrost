@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.bifrost.twp.R
+import com.bifrost.twp.ui.theme.BifrostTheme
 import com.bifrost.twp.ui.theme.CardBackground
 import com.bifrost.twp.ui.theme.CardStroke
 import com.bifrost.twp.ui.theme.DarkBackground
@@ -57,93 +58,89 @@ fun LanguageSelectionDialog(
         onDismissRequest = {}, // Non-dismissible on first run
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
-                .background(CardBackground)
-                .border(1.dp, CardStroke, RoundedCornerShape(20.dp))
-                .padding(22.dp)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
+        BifrostTheme(language = selectedLanguage) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(CardBackground)
+                    .border(1.dp, CardStroke, RoundedCornerShape(20.dp))
+                    .padding(22.dp)
             ) {
-                // Header
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                Column(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Language,
-                        contentDescription = null,
-                        tint = NeonCyan,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    // Header
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Language,
+                            contentDescription = null,
+                            tint = NeonCyan,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = stringResource(R.string.lang_selection_title),
+                            color = TextPrimary,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
                     Text(
-                        text = if (selectedLanguage == "fa") "انتخاب زبان برنامه" else "Choose App Language",
-                        color = TextPrimary,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = if (selectedLanguage == "fa") VazirmatnFontFamily else null
+                        text = stringResource(R.string.lang_selection_subtitle),
+                        color = TextSecondary,
+                        fontSize = 12.sp,
+                        lineHeight = 18.sp
                     )
-                }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
 
-                Text(
-                    text = if (selectedLanguage == "fa")
-                        "لطفاً برای ادامه، زبان مورد نظر خود را انتخاب نمایید:"
-                    else
-                        "Please choose your preferred language to continue:",
-                    color = TextSecondary,
-                    fontSize = 12.sp,
-                    lineHeight = 18.sp,
-                    fontFamily = if (selectedLanguage == "fa") VazirmatnFontFamily else null
-                )
-
-                Spacer(modifier = Modifier.height(18.dp))
-
-                // Option 1: Persian
-                LanguageOptionCard(
-                    title = "فارسی",
-                    subtitle = "رابط کاربری زبان فارسی",
-                    isSelected = selectedLanguage == "fa",
-                    isVazir = true,
-                    onClick = { selectedLanguage = "fa" }
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Option 2: English
-                LanguageOptionCard(
-                    title = "English",
-                    subtitle = "English user interface",
-                    isSelected = selectedLanguage == "en",
-                    isVazir = false,
-                    onClick = { selectedLanguage = "en" }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Confirm Button
-                Button(
-                    onClick = { onLanguageConfirmed(selectedLanguage) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(46.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = NeonCyan,
-                        contentColor = DarkBackground
+                    // Option 1: Persian
+                    LanguageOptionCard(
+                        title = "فارسی",
+                        subtitle = "رابط کاربری زبان فارسی",
+                        isSelected = selectedLanguage == "fa",
+                        isVazir = true,
+                        onClick = { selectedLanguage = "fa" }
                     )
-                ) {
-                    Text(
-                        text = if (selectedLanguage == "fa") "تایید و ورود به برنامه" else "Confirm & Continue",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = if (selectedLanguage == "fa") VazirmatnFontFamily else null
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Option 2: English
+                    LanguageOptionCard(
+                        title = "English",
+                        subtitle = "English user interface",
+                        isSelected = selectedLanguage == "en",
+                        isVazir = false,
+                        onClick = { selectedLanguage = "en" }
                     )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Confirm Button
+                    Button(
+                        onClick = { onLanguageConfirmed(selectedLanguage) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(46.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = NeonCyan,
+                            contentColor = DarkBackground
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(R.string.action_confirm_start),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
