@@ -181,7 +181,9 @@ class QrScannerActivity : ComponentActivity() {
 
             if (parsedConfig != null) {
                 repository.addOrUpdateProxy(parsedConfig, makeActive = true)
-                BifrostBridgeService.start(applicationContext)
+                if (repository.isBridgeEnabledFlow.value) {
+                    BifrostBridgeService.start(applicationContext)
+                }
                 Toast.makeText(this, getString(R.string.msg_proxy_saved), Toast.LENGTH_SHORT).show()
                 finish()
             } else {

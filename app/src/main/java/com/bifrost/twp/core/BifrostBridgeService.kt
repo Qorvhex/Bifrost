@@ -77,7 +77,22 @@ class BifrostBridgeService : Service() {
             return START_NOT_STICKY
         }
 
-        if (action == ACTION_START || intent == null) {
+        if (action == ACTION_START) {
+            val activeProxy = repository.activeProxyFlow.value
+            if (activeProxy != null) {
+                repository.setBridgeEnabled(true)
+                startBridge()
+                return START_STICKY
+            } else {
+                // Must call startForeground before stopping if launched via startForegroundService
+                startForeground(NOTIFICATION_ID, buildNotification(BridgeState.STOPPED, 0))
+                stopBridge()
+                stopSelf()
+                return START_NOT_STICKY
+            }
+        }
+
+        if (intent == null) {
             if (repository.isBridgeEnabledFlow.value && repository.activeProxyFlow.value != null) {
                 startBridge()
                 return START_STICKY

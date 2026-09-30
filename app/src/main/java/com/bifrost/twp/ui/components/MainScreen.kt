@@ -120,13 +120,13 @@ fun MainScreen(
                 context.packageManager.getPackageInfo(
                     context.packageName,
                     PackageManager.PackageInfoFlags.of(0)
-                ).versionName ?: "1.1.3"
+                ).versionName ?: "1.1.5"
             } else {
                 @Suppress("DEPRECATION")
-                context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.1.3"
+                context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.1.5"
             }
         } catch (_: Exception) {
-            "1.1.3"
+            "1.1.5"
         }
     }
 
@@ -472,7 +472,7 @@ fun MainScreen(
                             SmallFloatingActionButton(
                                 onClick = {
                                     isFabExpanded = false
-                                    importFromClipboard(context, repository)
+                                    importFromClipboard(context, repository, isBridgeRunning)
                                 },
                                 containerColor = CardBackground,
                                 contentColor = NeonEmerald,
@@ -655,19 +655,26 @@ fun MainScreen(
     }
 }
 
-private fun importFromClipboard(context: Context, repository: ProxyRepository) {
-    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = clipboard.primaryClip
-    if (clip != null && clip.itemCount > 0) {
-        val text = clip.getItemAt(0).text?.toString()
-        if (!text.isNullOrBlank()) {
-            val imported = repository.importFromLink(text, makeActive = true)
-            if (imported != null) {
-                BifrostBridgeService.start(context)
-                Toast.makeText(context, context.getString(R.string.msg_proxy_saved), Toast.LENGTH_SHORT).show()
-                return
+private fun importFromClipboard(context: Context, repository: ProxyRepository, isBridgeRunning: Boolean) {
+    try {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        val clip = clipboard?.primaryClip
+        if (clip != null && clip.itemCount > 0) {
+            val text = clip.getItemAt(0).coerceToText(context)?.toString()?.trim()
+            if (!text.isNullOrBlank()) {
+                val imported = repository.importFromLink(text, makeActive = true)
+                if (imported != null) {
+                    if (isBridgeRunning) {
+                        BifrostBridgeService.start(context)
+                    }
+                    Toast.makeText(context, context.getString(R.string.msg_proxy_saved), Toast.LENGTH_SHORT).show()
+                    return
+                }
             }
         }
+        Toast.makeText(context, context.getString(R.string.msg_invalid_clipboard), Toast.LENGTH_SHORT).show()
+    } catch (e: Exception) {
+        android.util.Log.e("Bifrost", "Failed to import from clipboard", e)
+        Toast.makeText(context, context.getString(R.string.msg_invalid_clipboard), Toast.LENGTH_SHORT).show()
     }
-    Toast.makeText(context, context.getString(R.string.msg_invalid_clipboard), Toast.LENGTH_SHORT).show()
 }
