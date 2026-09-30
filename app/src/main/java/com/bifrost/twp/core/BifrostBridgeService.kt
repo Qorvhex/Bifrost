@@ -113,11 +113,12 @@ class BifrostBridgeService : Service() {
             port = currentPort,
             proxyConfigProvider = { repository.activeProxyFlow.value },
             onConnectionCountChanged = { count ->
-                if (!_serviceRunning.value) return@Socks5Server
-                _connectionCount.value = count
-                val state = if (count > 0) BridgeState.STREAMING else BridgeState.LISTENING
-                _bridgeState.value = state
-                updateNotification()
+                if (_serviceRunning.value) {
+                    _connectionCount.value = count
+                    val state = if (count > 0) BridgeState.STREAMING else BridgeState.LISTENING
+                    _bridgeState.value = state
+                    updateNotification()
+                }
             }
         ).also { server ->
             server.start(serviceScope)

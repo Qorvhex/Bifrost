@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
+import com.bifrost.twp.R
 import com.bifrost.twp.data.ProxyRepository
 import com.bifrost.twp.ui.components.MainScreen
 import com.bifrost.twp.ui.theme.BifrostTheme

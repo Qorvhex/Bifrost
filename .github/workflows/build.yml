@@ -2,10 +2,10 @@ name: Build Bifrost APK
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "prerelease" ]
     tags: [ "v*" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "prerelease" ]
   workflow_dispatch:
 
 concurrency:
@@ -38,13 +38,19 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Setup Production Release Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEY_ALIAS_SECRET: ${{ secrets.KEY_ALIAS }}
+          KEYSTORE_PASSWORD_SECRET: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD_SECRET: ${{ secrets.KEY_PASSWORD }}
         run: |
-          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+          KEYSTORE_CLEAN=$(echo "$KEYSTORE_BASE64" | tr -d '\r\n[:space:]')
+          if [ -n "$KEYSTORE_CLEAN" ]; then
             echo "Using custom release keystore from repository secrets..."
-            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release-keystore.jks
-            echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
-            echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
-            echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
+            echo "$KEYSTORE_CLEAN" | base64 -d > app/release-keystore.jks
+            echo "KEY_ALIAS=${KEY_ALIAS_SECRET:-bifrost}" >> $GITHUB_ENV
+            echo "KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD_SECRET:-bifrost123}" >> $GITHUB_ENV
+            echo "KEY_PASSWORD=${KEY_PASSWORD_SECRET:-bifrost123}" >> $GITHUB_ENV
           else
             echo "Generating production release keystore for signing..."
             keytool -genkeypair -v \

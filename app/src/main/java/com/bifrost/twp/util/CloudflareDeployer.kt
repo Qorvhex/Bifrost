@@ -64,7 +64,7 @@ object CloudflareDeployer {
                 id = UUID.randomUUID().toString(),
                 name = "CF-$randomId",
                 workerHost = workerHost,
-                secretKey = secretKey?.trim()?.takeIf { it.isNotBlank() },
+                secret = secretKey?.trim()?.takeIf { it.isNotBlank() },
                 cleanIp = null,
                 port = 443,
                 isActive = true
