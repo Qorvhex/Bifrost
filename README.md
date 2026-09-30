@@ -13,13 +13,13 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.20-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-[**فارسی (Persian)**](#-بخش-فارسی-persian) | [**English**](#-english-section)
+[**فارسی (Persian)**](#persian-section) | [**English**](#english-section)
 
 </div>
 
 ---
 
-<a name="english-section"></a>
+<a id="english-section"></a>
 # 🌐 English Section
 
 **Bifrost** is a next-generation local SOCKS5 bridge for Android that tunnels official Telegram MTProto traffic through Cloudflare Workers using the TWP protocol (MTProto-over-WebSocket). 
@@ -96,7 +96,7 @@ Bifrost includes a built-in automated deployer that connects directly to the Clo
 
 ---
 
-### Method 2: Manual Cloudflare Dashboard Setup (Advanced) ⚙️
+### Method 2: Manual Cloudflare Dashboard Setup (Advanced) ⚙️️
 If you prefer creating and deploying the worker manually via your desktop or browser:
 
 #### Step 1: Copy the Worker Script
@@ -188,7 +188,7 @@ The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
 ---
 ---
 
-<a name="بخش-فارسی-persian"></a>
+<a id="persian-section"></a>
 #  بخش فارسی (Persian)
 
 **Bifrost (بایفراست)** یک پل ارتباطی محلی (Local SOCKS5 Bridge) فوق‌سبک، مدرن و با مصرف باتری نزدیک به صفر برای سیستم‌عامل اندروید است. این برنامه بدون نیاز به سرویس‌های سنگین VPN، بدون نیاز به روت و بدون تغییر در ترافیک سایر اپلیکیشن‌های گوشی، ترافیک پروتکل MTProto تلگرام را از طریق ورکر کلادفلر (پروتکل TWP: MTProto-over-WebSocket) به دیتاسنترهای رسمی تلگرام می‌رساند.
@@ -201,7 +201,7 @@ The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
 - **معماری بیداری در صورت نیاز (Zero-Idle Core):** در زمان بسته بودن تلگرام یا عدم تبادل پیام، مصرف پردازنده دقیقاً **۰.۰٪** است. به محض ارسال یا دریافت پیام، برنامه فوراً بیدار شده و پس از اتمام کار مجدداً به خواب سبک می‌رود.
 - **پشتیبانی کامل از آی‌پی تمیز (Clean IP / CDN IP):** قابلیت اتصال مستقیم به آی‌پی‌ها یا دامنه‌های تمیز کلادفلر جهت دور زدن اختلالات شدید اینترنت و مسدودی دامنه‌ها.
 - **ساختار استاندارد جهانی لینک‌ها (RFC 3986):** ساختار لینک‌های `twp://` دقیقاً مشابه استانداردهای جهانی پروکسی‌ها (VLESS، Trojan و Shadowsocks) بازنویسی شده است.
-- **دیپلینک بدون وقفه (Zero-Click Deep Link):** با کلیک روی هر لینک `twp://` یا اشتراک آن در بایفراست، کانفیگ فوراً در پس‌زمینه ذخیره و فعال شده و مستقیماً صفحه ست کردن پروکسی در تلگرام باز می‌شود.
+- **دیپلینک بدون وقفه (Zero-Click Deep Link):** با کلیک روی هر لینک `twp://` یا اشتراک آن در بایفراست، کانفیگ فوراً در پس‌‌زمینه ذخیره و فعال شده و مستقیماً صفحه ست کردن پروکسی در تلگرام باز می‌شود.
 - **ساخت خودکار و یک‌کلیکه پروکسی:** ساخت و استقرار مستقیم ورکر در اکانت کلادفلر بدون نیاز به کدنویسی از داخل بخش تنظیمات برنامه.
 - **اجرای خودکار هنگام روشن شدن گوشی (Run on Startup):** راه‌اندازی و اتصال مجدد خودکار پروکسی پس از بالا آمدن یا ری‌استارت دستگاه.
 - **پشتیبانی کامل دوزبانه (فارسی و انگلیسی):** رابط کاربری فارسی روان با فونت وزیر و امکان تغییر سریع زبان از تنظیمات.
@@ -249,7 +249,7 @@ The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
 ۲. روی **Add** کلیک کرده و یک متغیر با مشخصات زیر بسازید:
    - نام متغیر: `SECRET`
    - مقدار: رمز عبور دلخواه شما (مثال: `MySecret123`)
-۳. دکمه **Save and deploy** را بزنید.
+3. دکمه **Save and deploy** را بزنید.
 
 #### مرحله ۴: افزودن به بایفراست
 آدرس ورکر شما به صورت `my-proxy.your-subdomain.workers.dev` خواهد بود. می‌توانید آن را به دو روش وارد بایفراست کنید:
