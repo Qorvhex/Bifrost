@@ -77,6 +77,17 @@ class BifrostBridgeService : Service() {
             return START_NOT_STICKY
         }
 
+        if (action == ACTION_START || intent == null) {
+            if (repository.isBridgeEnabledFlow.value && repository.activeProxyFlow.value != null) {
+                startBridge()
+                return START_STICKY
+            } else {
+                stopBridge()
+                stopSelf()
+                return START_NOT_STICKY
+            }
+        }
+
         startBridge()
         return START_STICKY
     }
@@ -102,6 +113,7 @@ class BifrostBridgeService : Service() {
             port = currentPort,
             proxyConfigProvider = { repository.activeProxyFlow.value },
             onConnectionCountChanged = { count ->
+                if (!_serviceRunning.value) return@Socks5Server
                 _connectionCount.value = count
                 val state = if (count > 0) BridgeState.STREAMING else BridgeState.LISTENING
                 _bridgeState.value = state
@@ -119,12 +131,20 @@ class BifrostBridgeService : Service() {
     }
 
     private fun stopBridge() {
-        repository.setBridgeEnabled(false)
-        socks5Server?.stop()
-        socks5Server = null
         _serviceRunning.value = false
         _bridgeState.value = BridgeState.STOPPED
         _connectionCount.value = 0
+        repository.setBridgeEnabled(false)
+        socks5Server?.stop()
+        socks5Server = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.cancel(NOTIFICATION_ID)
     }
 
     private fun updateNotification() {

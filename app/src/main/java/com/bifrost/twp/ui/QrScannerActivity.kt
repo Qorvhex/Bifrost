@@ -43,6 +43,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -91,8 +92,10 @@ class QrScannerActivity : ComponentActivity() {
             requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
 
+        val repository = ProxyRepository.getInstance(applicationContext)
         setContent {
-            BifrostTheme {
+            val appLanguage by repository.appLanguageFlow.collectAsState(initial = "en")
+            BifrostTheme(language = appLanguage) {
                 ScannerScreen(
                     isTorchOn = isTorchOn,
                     onToggleTorch = {
@@ -242,7 +245,7 @@ fun ScannerScreen(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.action_close),
                     tint = TextPrimary
                 )
             }
@@ -258,7 +261,7 @@ fun ScannerScreen(
             ) {
                 Icon(
                     imageVector = if (isTorchOn) Icons.Outlined.FlashOn else Icons.Outlined.FlashOff,
-                    contentDescription = "Torch",
+                    contentDescription = stringResource(R.string.action_torch),
                     tint = if (isTorchOn) NeonCyan else TextPrimary
                 )
             }
@@ -266,7 +269,7 @@ fun ScannerScreen(
 
         // Bottom Instruction
         Text(
-            text = "Point camera at a twp:// QR code",
+            text = stringResource(R.string.qr_scan_instruction),
             color = TextPrimary,
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,

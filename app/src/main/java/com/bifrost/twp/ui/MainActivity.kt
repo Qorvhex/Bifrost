@@ -8,6 +8,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import com.bifrost.twp.data.ProxyRepository
 import com.bifrost.twp.ui.components.MainScreen
@@ -39,7 +41,8 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
 
         setContent {
-            BifrostTheme {
+            val appLanguage by repository.appLanguageFlow.collectAsState()
+            BifrostTheme(language = appLanguage) {
                 MainScreen(
                     repository = repository,
                     onLaunchQrScanner = {
@@ -67,7 +70,7 @@ class MainActivity : ComponentActivity() {
                 com.bifrost.twp.core.BifrostBridgeService.start(this)
                 val localPort = repository.localPortFlow.value
                 com.bifrost.twp.util.TelegramLauncher.openTelegramSocks(this, localPort)
-                android.widget.Toast.makeText(this, "Bifrost: Connected -> ${config.name}", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(this, getString(R.string.toast_proxy_activated_named, config.name), android.widget.Toast.LENGTH_SHORT).show()
             }
         }
     }

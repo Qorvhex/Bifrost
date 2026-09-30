@@ -64,7 +64,7 @@ fun AddEditProxyDialog(
                 .padding(20.dp)
         ) {
             Text(
-                text = if (initialConfig == null) "Add Worker Proxy" else "Edit Proxy",
+                text = if (initialConfig == null) stringResource(R.string.dialog_add_proxy_title) else stringResource(R.string.dialog_edit_proxy_title),
                 color = TextPrimary,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold

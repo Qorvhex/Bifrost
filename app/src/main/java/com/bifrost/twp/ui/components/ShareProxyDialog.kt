@@ -66,6 +66,9 @@ fun ShareProxyDialog(
 ) {
     val context = LocalContext.current
     val twpLink = remember(config) { TwpLinkParser.generateLink(config) }
+    val linkCopiedMsg = stringResource(R.string.msg_copied)
+    val twpCopiedMsg = stringResource(R.string.msg_twp_link_copied)
+    val shareChooserTitle = stringResource(R.string.share_chooser_title)
 
     val qrBitmap: Bitmap? = remember(twpLink) {
         QrCodeGenerator.generateQrBitmap(
@@ -93,7 +96,7 @@ fun ShareProxyDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Share Proxy",
+                    text = stringResource(R.string.dialog_share_title),
                     color = TextPrimary,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
@@ -101,7 +104,7 @@ fun ShareProxyDialog(
                 IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
                     Icon(
                         imageVector = Icons.Outlined.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(R.string.action_close),
                         tint = TextSecondary,
                         modifier = Modifier.size(18.dp)
                     )
@@ -123,11 +126,11 @@ fun ShareProxyDialog(
                 if (qrBitmap != null) {
                     Image(
                         bitmap = qrBitmap.asImageBitmap(),
-                        contentDescription = "Proxy QR Code",
+                        contentDescription = null,
                         modifier = Modifier.size(186.dp)
                     )
                 } else {
-                    Text("Error generating QR", color = TextMuted, fontSize = 12.sp)
+                    Text(stringResource(R.string.msg_error_qr), color = TextMuted, fontSize = 12.sp)
                 }
             }
 
@@ -141,7 +144,7 @@ fun ShareProxyDialog(
                     .background(DarkBackground)
                     .border(1.dp, CardStroke, RoundedCornerShape(8.dp))
                     .clickable {
-                        copyToClipboard(context, twpLink, "twp:// link copied")
+                        copyToClipboard(context, twpLink, twpCopiedMsg)
                     }
                     .padding(10.dp)
             ) {
@@ -163,7 +166,7 @@ fun ShareProxyDialog(
             ) {
                 OutlinedButton(
                     onClick = {
-                        copyToClipboard(context, twpLink, "Link copied to clipboard")
+                        copyToClipboard(context, twpLink, linkCopiedMsg)
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp),
@@ -185,7 +188,7 @@ fun ShareProxyDialog(
                             putExtra(Intent.EXTRA_TEXT, twpLink)
                             type = "text/plain"
                         }
-                        val shareIntent = Intent.createChooser(sendIntent, "Share Bifrost Proxy")
+                        val shareIntent = Intent.createChooser(sendIntent, shareChooserTitle)
                         context.startActivity(shareIntent)
                     },
                     modifier = Modifier.weight(1f),
