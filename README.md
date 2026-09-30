@@ -38,8 +38,12 @@ Unlike conventional VPN apps, Bifrost **does not use `VpnService`**, requires **
   twp://[secret@]workerHost[:port]?clean_ip=cleanIp#ConfigName
   ```
 - **Zero-Click Deep Linking:** Tapping any `twp://` link or sharing a link to Bifrost automatically saves the configuration, starts the bridge in the background, and forwards directly to Telegram's native proxy confirmation screen.
+- **Automated In-App Cloudflare Deployer:** Create, deploy, and activate your personal Cloudflare Worker proxy directly inside the app with zero manual coding.
+- **Run on Startup:** Optional background service auto-start upon phone boot or reboot to ensure uninterrupted proxy access.
+- **Full Bilingual Support:** Native English and Persian (فارسی) language support with beautiful Persian typography.
+- **In-App Update Checker:** One-tap GitHub update verification to keep your client on the latest version.
 - **Modern Jetpack Compose UI:** Cyberpunk dark aesthetics, floating action controls, instant QR code scanning (CameraX & ML Kit), and one-click Telegram setup.
-- **Configurable Local Port:** Default is `5050`, customizable to any port between `1024` and `65535`.
+- **Configurable Local Port:** Default is `5050`, customizable in Settings between `1024` and `65535`.
 
 ---
 
@@ -80,48 +84,53 @@ flowchart LR
 You can set up your private, high-speed Telegram proxy using either the **Automated In-App Deployer** (recommended, takes ~30 seconds) or the **Manual Dashboard Setup**.
 
 ### Method 1: 1-Click Automated In-App Deployment (Recommended) 🚀
-Bifrost features a built-in automated Cloudflare deployer that connects directly to the Cloudflare API, provisions the worker, deploys the latest TWP script, and activates your proxy automatically with zero coding:
+Bifrost includes a built-in automated deployer that connects directly to the Cloudflare API, provisions the worker, deploys the latest TWP script, and activates your proxy automatically with zero coding:
 
-1. Open **Bifrost** on your Android device.
-2. Tap the **+** (FAB) button and select **Create Proxy (Cloudflare)**.
-3. Tap **Get API Key from Cloudflare** — this opens Cloudflare's token creation page with the required Workers Scripts permissions pre-selected.
-4. On Cloudflare, click **Continue to summary** and then **Create Token**, then copy your API Token.
-5. Back in Bifrost, paste the token into the **Cloudflare API Token** field (optionally enter a custom secret password for encryption).
-6. Tap **Create Proxy**. Bifrost automatically verifies your account, discovers your `.workers.dev` subdomain, uploads the worker script, routes it, and activates it as your primary proxy!
+1. **Sign in to Cloudflare:** Make sure you have an active, free Cloudflare account at [dash.cloudflare.com](https://dash.cloudflare.com/) and are signed in on your mobile browser.
+2. **Open Settings in Bifrost:** Open the app and tap the **Settings** (⚙️) icon at the top right of the screen.
+3. **Tap "Create Proxy":** Tap the **Create Proxy** button at the top of the Settings dialog.
+4. **Get Your API Key:** Tap **Get API Key from Cloudflare**. This automatically opens Cloudflare in your browser with the exact permissions (`Workers Scripts: Edit`) pre-selected.
+5. **Create & Copy Token:** On the Cloudflare web page, scroll to the bottom, click the blue **Continue to summary** button, and then click **Create Token**. Copy the generated API token (note: Cloudflare displays this token only once).
+6. **Deploy:** Return to Bifrost, paste the token into the **Cloudflare API Token** field, and optionally enter a custom password in **Worker Secret Key** if you wish to restrict proxy access.
+7. **Complete:** Tap **Create Proxy**. Bifrost will automatically deploy the worker script, fetch your `.workers.dev` subdomain, and add the proxy to your active list ready for immediate use!
 
 ---
 
 ### Method 2: Manual Cloudflare Dashboard Setup (Advanced) ⚙️
-If you prefer deploying manually or using a custom domain:
+If you prefer creating and deploying the worker manually via your desktop or browser:
 
-#### Step 1: Get the Worker Script
-The official worker script is open-source and hosted at:
-👉 **[Qorvhex/TWP - worker.js](https://github.com/Qorvhex/TWP/blob/main/worker.js)**
+#### Step 1: Copy the Worker Script
+Get the official TWP proxy script from GitHub:
+👉 **[Raw worker.js Code](https://raw.githubusercontent.com/Qorvhex/TWP/refs/heads/main/worker.js)** (or view the [TWP Repository](https://github.com/Qorvhex/TWP))
 
-#### Step 2: Deploy to Cloudflare Workers
+#### Step 2: Create Worker in Cloudflare
 1. Log in to your [Cloudflare Dashboard](https://dash.cloudflare.com/).
-2. Navigate to **Workers & Pages** > **Overview** > **Create application** > **Create Worker**.
-3. Name your worker (e.g., `my-telegram-proxy`) and click **Deploy**.
-4. Click **Edit code**.
-5. Replace all existing code in `worker.js` with the code from [TWP worker.js](https://github.com/Qorvhex/TWP/blob/main/worker.js).
-6. Click **Save and deploy**.
+2. From the left sidebar, navigate to **Workers & Pages** > **Create application** > **Create Worker**.
+3. Choose a name for your worker (e.g., `my-proxy`) and click **Deploy**.
+4. Once deployed, click **Edit code**.
+5. Replace all existing placeholder code in the editor with the script copied from **worker.js**.
+6. Click **Save and deploy** (or **Deploy**).
 
-#### Step 3: (Optional) Set a Secret Token
-To prevent unauthorized usage:
-1. Go to your Worker's **Settings** > **Variables and Secrets**.
-2. Click **Add variable**:
+#### Step 3: (Optional) Set a Secret Password
+To prevent unauthorized users from using your worker's bandwidth:
+1. In your Worker's dashboard, navigate to **Settings** > **Variables and Secrets**.
+2. Click **Add variable** (or **Add** under Variables):
    - Variable name: `SECRET`
-   - Value: `YourSecretToken`
+   - Value: Your chosen password (e.g., `MySecret123`)
 3. Click **Save and deploy**.
 
 #### Step 4: Import into Bifrost
-Generate your link:
-```text
-twp://my-telegram-proxy.your-subdomain.workers.dev?clean_ip=1music.cc#MyWorker
-```
-*(If you configured a secret, use `twp://YourSecretToken@my-telegram-proxy.your-subdomain.workers.dev?clean_ip=1music.cc#MyWorker`)*
+Your proxy domain will be `my-proxy.your-subdomain.workers.dev`. You can import it into Bifrost in two ways:
 
-In **Bifrost**, tap **+** > **Paste from Clipboard** or scan the QR code. Tap the proxy card, and click **Connect Telegram**!
+* **Direct Manual Entry:** In Bifrost, tap the **+** (FAB) button at the bottom > choose **Manual Input** > enter your Worker domain, Secret (if configured), and Clean IP.
+* **Via `twp://` Link:** Construct your link and copy it to your clipboard:
+  ```text
+  twp://my-proxy.your-subdomain.workers.dev?clean_ip=1music.cc#MyProxy
+  ```
+  *(If password protected: `twp://MySecret123@my-proxy.your-subdomain.workers.dev?clean_ip=1music.cc#MyProxy`)*  
+  Then in Bifrost, tap **+** > **Paste from Clipboard**.
+
+> 💡 **What is Clean IP?** If your ISP blocks or throttles `*.workers.dev` subdomains, specifying a Clean IP or Cloudflare CDN domain (e.g., `1music.cc` or an uncensored Cloudflare Anycast IP) in `clean_ip` enables direct, smooth WebSocket handshakes without censorship.
 
 ---
 
@@ -193,24 +202,29 @@ The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
 - **پشتیبانی کامل از آی‌پی تمیز (Clean IP / CDN IP):** قابلیت اتصال مستقیم به آی‌پی‌ها یا دامنه‌های تمیز کلادفلر جهت دور زدن اختلالات شدید اینترنت و مسدودی دامنه‌ها.
 - **ساختار استاندارد جهانی لینک‌ها (RFC 3986):** ساختار لینک‌های `twp://` دقیقاً مشابه استانداردهای جهانی پروکسی‌ها (VLESS، Trojan و Shadowsocks) بازنویسی شده است.
 - **دیپلینک بدون وقفه (Zero-Click Deep Link):** با کلیک روی هر لینک `twp://` یا اشتراک آن در بایفراست، کانفیگ فوراً در پس‌زمینه ذخیره و فعال شده و مستقیماً صفحه ست کردن پروکسی در تلگرام باز می‌شود.
+- **ساخت خودکار و یک‌کلیکه پروکسی:** ساخت و استقرار مستقیم ورکر در اکانت کلادفلر بدون نیاز به کدنویسی از داخل بخش تنظیمات برنامه.
+- **اجرای خودکار هنگام روشن شدن گوشی (Run on Startup):** راه‌اندازی و اتصال مجدد خودکار پروکسی پس از بالا آمدن یا ری‌استارت دستگاه.
+- **پشتیبانی کامل دوزبانه (فارسی و انگلیسی):** رابط کاربری فارسی روان با فونت وزیر و امکان تغییر سریع زبان از تنظیمات.
+- **بررسی بروزرسانی درون برنامه:** بررسی نسخه جدید در گیتهاب با یک ضربه و لینک مستقیم دانلود.
 - **رابط کاربری مدرن (Jetpack Compose & Material 3):** طراحی دارک نئونی، اسکنر سریع QR Code با هوش مصنوعی ML Kit، دکمه شناور پاور و اتصال با یک کلیک به تلگرام.
-- **پورت محلی قابل تنظیم:** پورت پیش‌فرض `5050` است و در صورت نیاز از طریق تنظیمات بالا قابل تغییر است.
+- **پورت محلی قابل تنظیم:** پورت پیش‌فرض `5050` است و در صورت نیاز از طریق تنظیمات برنامه قابل تغییر است.
 
 ---
 
 ## 🛠️ آموزش راه‌اندازی پروکسی شخصی در کلادفلر (Cloudflare Worker)
 
-شما می‌توانید با دو روش، پروکسی شخصی، اختصاصی و نامحدود خود را راه‌اندازی کنید: **روش خودکار و یک‌کلیکه داخل اپلیکیشن** (پیشنهادی - کمتر از ۳۰ ثانیه) یا **روش دستی در پنل کلادفلر**.
+شما می‌توانید با دو روش، پروکسی شخصی، اختصاصی و پرسرعت خود را راه‌اندازی کنید: **روش خودکار و یک‌کلیکه داخل اپلیکیشن** (پیشنهادی - کمتر از ۳۰ ثانیه) یا **روش دستی در پنل کلادفلر**.
 
 ### روش ۱: ساخت و استقرار خودکار و یک‌کلیکه داخل برنامه (پیشنهادی) 🚀
-برنامه بایفراست دارای قابلیت استقرار خودکار است که مستقیماً از طریق API رسمی کلادفلر، ورکر را برای شما ایجاد، کدنویسی، فعال و به لیست پروکسی‌ها اضافه می‌کند:
+برنامه بایفراست مجهز به سیستم استقرار خودکار است که مستقیماً از طریق API رسمی کلادفلر، ورکر را برای شما ساخته، کدنویسی و فعال کرده و به لیست پروکسی‌ها اضافه می‌کند:
 
-۱. برنامه **Bifrost** را در گوشی خود باز کنید.
-۲. دکمه شناور **+** پایین صفحه را بزنید و گزینه **ساخت خودکار پروکسی با کلادفلر** را انتخاب کنید.
-۳. روی دکمه **دریافت کلید از کلادفلر** بزنید تا صفحه ساخت توکن کلادفلر با دسترسی‌های از پیش تنظیم‌شده باز شود.
-۴. در سایت کلادفلر روی **Continue to summary** و سپس **Create Token** بزنید و کلید ساخته‌شده (API Token) را کپی کنید.
-۵. به برنامه بایفراست برگشته، کلید را در فیلد **کلید اختصاصی کلادفلر** جای‌گذاری کنید (در صورت تمایل می‌توانید یک رمز عبور دلخواه در فیلد رمز عبور ورکر نیز وارد نمایید).
-۶. روی دکمه **ساخت پروکسی** بزنید. برنامه به صورت خودکار ورکر شما را ساخته، ساب‌دامین اختصاصی را دریافت و فعال کرده و مستقیماً به عنوان پروکسی فعال شما تنظیم می‌کند!
+۱. **داشتن حساب کلادفلر:** ابتدا در سایت [dash.cloudflare.com](https://dash.cloudflare.com/sign-up) یک حساب کاربری رایگان بسازید و در مرورگر گوشی وارد حساب خود شوید.
+۲. **باز کردن تنظیمات در بایفراست:** برنامه بایفراست را باز کنید و روی آیکون **تنظیمات** (⚙️) در بالای صفحه ضربه بزنید.
+۳. **انتخاب ساخت پروکسی:** روی دکمه آبی‌رنگ **ساخت پروکسی** (Create Proxy) در بالای پنجره تنظیمات بزنید.
+۴. **دریافت کلید API:** روی دکمه **دریافت کلید از کلادفلر** بزنید. مرورگر گوشی شما باز شده و مستقیماً به صفحه ساخت توکن کلادفلر با دسترسی‌های از پیش تنظیم‌شده (`Workers Scripts: Edit`) هدایت می‌شوید.
+۵. **ساخت و کپی توکن:** در صفحه سایت کلادفلر، به انتهای صفحه اسکرول کرده و دکمه آبی **Continue to summary** و سپس **Create Token** را بزنید. سپس کلید ایجاد شده (API Token) را کپی کنید (کلادفلر این کلید را فقط یک‌بار نمایش می‌دهد).
+۶. **استقرار در برنامه:** به برنامه بایفراست برگردید، کلید را در کادر **کلید اختصاصی کلادفلر** پیست کنید. در صورت تمایل می‌توانید یک پسورد دلخواه نیز در کادر **رمز عبور ورکر** برای محافظت و خصوصی‌سازی پروکسی وارد نمایید.
+۷. **پایان:** دکمه **ساخت پروکسی** را بزنید. درصد پیشرفت پر شده و برنامه به صورت کاملاً خودکار ورکر شما را ساخته، ساب‌دامین اختصاصی را دریافت و فعال کرده و مستقیماً آن را به عنوان پروکسی فعال شما تنظیم می‌کند!
 
 ---
 
@@ -219,33 +233,36 @@ The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
 
 #### مرحله ۱: دریافت کد اسکریپت ورکر
 سورس کد رسمی ورکر در مخزن زیر قرار دارد:
-👉 **[کد اسکریپت worker.js در گیت‌هاب Qorvhex/TWP](https://github.com/Qorvhex/TWP/blob/main/worker.js)**
+👉 **[مشاهده و کپی مستقیم کدهای worker.js](https://raw.githubusercontent.com/Qorvhex/TWP/refs/heads/main/worker.js)** (یا در [مخزن TWP](https://github.com/Qorvhex/TWP))
 
-#### مرحله ۲: ساخت و راه‌اندازی ورکر در کلادفلر
-۱. وارد داشبورد حساب خود در [Cloudflare Dashboard](https://dash.cloudflare.com/) شوید.
-۲. از منوی سمت چپ به بخش **Workers & Pages** > **Overview** بروید.
-۳. روی دکمه **Create application** و سپس **Create Worker** کلیک کنید.
-۴. یک نام دلخواه برای ورکر خود وارد کنید (مثال: `my-telegram-proxy`) و دکمه **Deploy** را بزنید.
-۵. پس از ساخته شدن، روی دکمه **Edit code** کلیک کنید.
-۶. تمامی کدهای موجود در فایل `worker.js` را پاک کرده و کدهای کپی‌شده از [worker.js گیت‌هاب](https://github.com/Qorvhex/TWP/blob/main/worker.js) را در آن جای‌گذاری (Paste) کنید.
-۷. روی دکمه **Save and deploy** کلیک کنید.
+#### مرحله ۲: ساخت ورکر در کلادفلر
+۱. وارد حساب کاربری خود در [Cloudflare Dashboard](https://dash.cloudflare.com/) شوید.
+۲. از منوی سمت چپ به بخش **Workers & Pages** بروید و روی **Create application** (یا **Create Worker**) کلیک کنید.
+۳. یک نام دلخواه برای ورکر خود وارد کنید (مثال: `my-proxy`) و دکمه **Deploy** را بزنید.
+۴. پس از ساخته شدن، روی دکمه **Edit code** کلیک کنید.
+۵. تمامی کدهای پیش‌فرض داخل ادیتور را پاک کنید و کدهای کپی‌شده از فایل **worker.js** را جای‌گذاری (Paste) کنید.
+۶. در بالا سمت راست روی دکمه **Save and deploy** (یا **Deploy**) کلیک کنید.
 
-#### مرحله ۳: تنظیم پسورد و رمز عبور (اختیاری جهت حفظ امنیت)
-اگر می‌خواهید پروکسی شما خصوصی باشد و دیگران نتوانند از آن استفاده کنند:
-۱. در صفحه ورکر خود به تب **Settings** و سپس بخش **Variables and Secrets** بروید.
-۲. روی **Add variable** کلیک کنید:
+#### مرحله ۳: تنظیم رمز عبور ورکر (اختیاری جهت حفظ حریم خصوصی)
+برای اینکه دیگران نتوانند از ترافیک ورکر شما استفاده کنند:
+۱. در صفحه مدیریت ورکر خود، به تب **Settings** و بخش **Variables and Secrets** بروید.
+۲. روی **Add** کلیک کرده و یک متغیر با مشخصات زیر بسازید:
    - نام متغیر: `SECRET`
    - مقدار: رمز عبور دلخواه شما (مثال: `MySecret123`)
 ۳. دکمه **Save and deploy** را بزنید.
 
-#### مرحله ۴: ساخت لینک و ورود به بایفراست
-لینک شما به شکل زیر خواهد بود:
-```text
-twp://my-telegram-proxy.your-subdomain.workers.dev?clean_ip=1music.cc#ورکر_من
-```
-*(در صورت تنظیم پسورد: `twp://MySecret123@my-telegram-proxy.your-subdomain.workers.dev?clean_ip=1music.cc#ورکر_من`)*
+#### مرحله ۴: افزودن به بایفراست
+آدرس ورکر شما به صورت `my-proxy.your-subdomain.workers.dev` خواهد بود. می‌توانید آن را به دو روش وارد بایفراست کنید:
 
-کافیست این لینک را کپی کرده، در بایفراست دکمه **+** را بزنید و **Paste from Clipboard** را انتخاب کنید. سپس روی کارت کانفیگ ضربه بزنید و دکمه **Connect Telegram** را لمس کنید!
+* **ورود دستی:** در بایفراست دکمه **+** پایین صفحه را بزنید > گزینه **ورود دستی** را انتخاب کنید > آدرس ورکر، رمز (در صورت تنظیم) و آی‌پی تمیز را وارد نمایید.
+* **از طریق ساخت لینک `twp://`:** لینک زیر را با مشخصات ورکر خود آماده و کپی کنید:
+  ```text
+  twp://my-proxy.your-subdomain.workers.dev?clean_ip=1music.cc#ورکر_من
+  ```
+  *(اگر رمز گذاشته‌اید: `twp://MySecret123@my-proxy.your-subdomain.workers.dev?clean_ip=1music.cc#ورکر_من`)*  
+  سپس در برنامه بایفراست دکمه **+** را بزنید و **جای‌گذاری از کلیپ‌بورد** را لمس کنید!
+
+> 💡 **آی‌پی تمیز (Clean IP) چیست؟** از آنجا که دامنه‌های `workers.dev` در برخی اپراتورها مسدود یا دچار اختلال هستند، قرار دادن یک آی‌پی یا دامنه تمیز کلادفلر (مثل `1music.cc` یا آی‌پی‌های Anycast تست‌شده) در بخش `clean_ip` باعث می‌شود ارتباط مستقیم، پرسرعت و بدون قطعی برقرار شود.
 
 ---
 
