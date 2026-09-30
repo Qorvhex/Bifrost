@@ -97,7 +97,7 @@ fun AddEditProxyDialog(
                     { Text(stringResource(R.string.msg_error_empty_host), color = DangerRed, fontSize = 11.sp) }
                 } else null,
                 singleLine = true,
-                placeholder = { Text("e.g. proxy.workers.dev", color = TextMuted, fontSize = 12.sp) },
+                placeholder = { Text("proxy.workers.dev", color = TextMuted, fontSize = 12.sp) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = textFieldColors()
             )
@@ -109,7 +109,7 @@ fun AddEditProxyDialog(
                 value = cleanIp,
                 onValueChange = { cleanIp = it },
                 label = { Text(stringResource(R.string.field_clean_ip), fontSize = 12.sp) },
-                placeholder = { Text("e.g. 104.16.132.229", color = TextMuted, fontSize = 12.sp) },
+                placeholder = { Text("104.16.132.229", color = TextMuted, fontSize = 12.sp) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 colors = textFieldColors()

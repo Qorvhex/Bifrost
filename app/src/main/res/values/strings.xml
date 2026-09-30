@@ -46,9 +46,9 @@
     <string name="lang_selection_title">Choose App Language</string>
     <string name="lang_selection_subtitle">Please choose your preferred language to continue</string>
     <string name="lang_en_label">English</string>
-    <string name="lang_fa_label">فارسی (وزیر)</string>
+    <string name="lang_fa_label">فارسی</string>
     <string name="lang_en_preview">Default system typography</string>
-    <string name="lang_fa_preview">فونت زیبای وزیرمتن</string>
+    <string name="lang_fa_preview">زبان فارسی</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>

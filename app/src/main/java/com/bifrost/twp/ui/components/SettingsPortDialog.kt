@@ -173,7 +173,7 @@ fun SettingsDialog(
             ) {
                 // Persian Button
                 LanguageChip(
-                    title = "فارسی (وزیر)",
+                    title = "فارسی",
                     isSelected = currentLanguage == "fa",
                     isVazir = true,
                     modifier = Modifier.weight(1f),

@@ -120,13 +120,13 @@ fun MainScreen(
                 context.packageManager.getPackageInfo(
                     context.packageName,
                     PackageManager.PackageInfoFlags.of(0)
-                ).versionName ?: "1.1.0"
+                ).versionName ?: "1.1.3"
             } else {
                 @Suppress("DEPRECATION")
-                context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.1.0"
+                context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.1.3"
             }
         } catch (_: Exception) {
-            "1.1.0"
+            "1.1.3"
         }
     }
 
@@ -169,10 +169,10 @@ fun MainScreen(
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "BIFROST",
+                                text = stringResource(R.string.app_name),
                                 color = TextPrimary,
                                 fontWeight = FontWeight.Black,
-                                letterSpacing = 2.sp,
+                                letterSpacing = if (appLanguage == "fa") 0.sp else 2.sp,
                                 fontSize = 20.sp
                             )
                             Spacer(modifier = Modifier.width(6.dp))
@@ -288,165 +288,6 @@ fun MainScreen(
                         containerColor = DarkBackground
                     )
                 )
-            },
-            floatingActionButton = {
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // Speed Dial Sub-actions
-                    AnimatedVisibility(
-                        visible = isFabExpanded,
-                        enter = fadeIn() + expandVertically(),
-                        exit = fadeOut() + shrinkVertically()
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.End,
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            // 1. Manual Add
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(end = 4.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.action_add_manual),
-                                    color = TextPrimary,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .background(CardBackground)
-                                        .border(1.dp, CardStroke, RoundedCornerShape(6.dp))
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                SmallFloatingActionButton(
-                                    onClick = {
-                                        isFabExpanded = false
-                                        editingProxy = null
-                                        showAddEditDialog = true
-                                    },
-                                    containerColor = CardBackground,
-                                    contentColor = NeonCyan,
-                                    shape = CircleShape
-                                ) {
-                                    Icon(Icons.Outlined.Edit, contentDescription = stringResource(R.string.action_add_manual), modifier = Modifier.size(18.dp))
-                                }
-                            }
-
-                            // 2. Smart Clipboard Import
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(end = 4.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.action_paste_clipboard),
-                                    color = TextPrimary,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .background(CardBackground)
-                                        .border(1.dp, CardStroke, RoundedCornerShape(6.dp))
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                SmallFloatingActionButton(
-                                    onClick = {
-                                        isFabExpanded = false
-                                        importFromClipboard(context, repository)
-                                    },
-                                    containerColor = CardBackground,
-                                    contentColor = NeonEmerald,
-                                    shape = CircleShape
-                                ) {
-                                    Icon(Icons.Outlined.ContentPaste, contentDescription = stringResource(R.string.action_paste_clipboard), modifier = Modifier.size(18.dp))
-                                }
-                            }
-
-                            // 3. Scan QR Code
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(end = 4.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.action_scan_qr),
-                                    color = TextPrimary,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .background(CardBackground)
-                                        .border(1.dp, CardStroke, RoundedCornerShape(6.dp))
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                SmallFloatingActionButton(
-                                    onClick = {
-                                        isFabExpanded = false
-                                        onLaunchQrScanner()
-                                    },
-                                    containerColor = CardBackground,
-                                    contentColor = NeonCyan,
-                                    shape = CircleShape
-                                ) {
-                                    Icon(Icons.Outlined.QrCodeScanner, contentDescription = stringResource(R.string.action_scan_qr), modifier = Modifier.size(18.dp))
-                                }
-                            }
-                        }
-                    }
-
-                    // Power Toggle Floating Action Button (Turn Proxy On / Off)
-                    FloatingActionButton(
-                        onClick = {
-                            if (isBridgeRunning) {
-                                repository.setBridgeEnabled(false)
-                                BifrostBridgeService.stop(context)
-                                Toast.makeText(context, context.getString(R.string.toast_bridge_stopped), Toast.LENGTH_SHORT).show()
-                            } else {
-                                if (activeProxy != null) {
-                                    repository.setBridgeEnabled(true)
-                                    BifrostBridgeService.start(context)
-                                    Toast.makeText(context, context.getString(R.string.toast_bridge_started), Toast.LENGTH_SHORT).show()
-                                } else {
-                                    Toast.makeText(context, context.getString(R.string.toast_select_worker_first), Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        },
-                        containerColor = CardBackground,
-                        contentColor = if (isBridgeRunning) NeonEmerald else DangerRed.copy(alpha = 0.85f),
-                        shape = CircleShape,
-                        modifier = Modifier
-                            .size(56.dp)
-                            .border(
-                                width = if (isBridgeRunning) 2.dp else 1.2.dp,
-                                color = if (isBridgeRunning) NeonEmerald else CardStroke,
-                                shape = CircleShape
-                            )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.PowerSettingsNew,
-                            contentDescription = if (isBridgeRunning) stringResource(R.string.status_stopped) else stringResource(R.string.status_active),
-                            modifier = Modifier.size(26.dp)
-                        )
-                    }
-
-                    // Main FAB
-                    FloatingActionButton(
-                        onClick = { isFabExpanded = !isFabExpanded },
-                        containerColor = NeonCyan,
-                        contentColor = DarkBackground,
-                        shape = CircleShape,
-                        modifier = Modifier.size(56.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (isFabExpanded) Icons.Default.Close else Icons.Default.Add,
-                            contentDescription = stringResource(R.string.action_add_proxy),
-                            modifier = Modifier.size(26.dp)
-                        )
-                    }
-                }
             }
         ) { innerPadding ->
             LazyColumn(
@@ -556,6 +397,173 @@ fun MainScreen(
                         isFabExpanded = false
                     }
             )
+        }
+
+        // FAB and Speed Dial Overlay (Unblurred, rendered on top of Scrim)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 24.dp, end = 20.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Speed Dial Actions Menu
+                AnimatedVisibility(
+                    visible = isFabExpanded,
+                    enter = fadeIn(tween(150)) + expandVertically(tween(200)),
+                    exit = fadeOut(tween(150)) + shrinkVertically(tween(200))
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    ) {
+                        // 1. Manual Add
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(end = 4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.action_add_manual),
+                                color = TextPrimary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(CardBackground)
+                                    .border(1.dp, CardStroke, RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            SmallFloatingActionButton(
+                                onClick = {
+                                    isFabExpanded = false
+                                    editingProxy = null
+                                    showAddEditDialog = true
+                                },
+                                containerColor = CardBackground,
+                                contentColor = NeonCyan,
+                                shape = CircleShape
+                            ) {
+                                Icon(Icons.Outlined.Edit, contentDescription = stringResource(R.string.action_add_manual), modifier = Modifier.size(18.dp))
+                            }
+                        }
+
+                        // 2. Smart Clipboard Import
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(end = 4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.action_paste_clipboard),
+                                color = TextPrimary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(CardBackground)
+                                    .border(1.dp, CardStroke, RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            SmallFloatingActionButton(
+                                onClick = {
+                                    isFabExpanded = false
+                                    importFromClipboard(context, repository)
+                                },
+                                containerColor = CardBackground,
+                                contentColor = NeonEmerald,
+                                shape = CircleShape
+                            ) {
+                                Icon(Icons.Outlined.ContentPaste, contentDescription = stringResource(R.string.action_paste_clipboard), modifier = Modifier.size(18.dp))
+                            }
+                        }
+
+                        // 3. Scan QR Code
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(end = 4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.action_scan_qr),
+                                color = TextPrimary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(CardBackground)
+                                    .border(1.dp, CardStroke, RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            SmallFloatingActionButton(
+                                onClick = {
+                                    isFabExpanded = false
+                                    onLaunchQrScanner()
+                                },
+                                containerColor = CardBackground,
+                                contentColor = NeonCyan,
+                                shape = CircleShape
+                            ) {
+                                Icon(Icons.Outlined.QrCodeScanner, contentDescription = stringResource(R.string.action_scan_qr), modifier = Modifier.size(18.dp))
+                            }
+                        }
+                    }
+                }
+
+                // Power Toggle Floating Action Button (Turn Proxy On / Off)
+                FloatingActionButton(
+                    onClick = {
+                        if (isBridgeRunning) {
+                            repository.setBridgeEnabled(false)
+                            BifrostBridgeService.stop(context)
+                            Toast.makeText(context, context.getString(R.string.toast_bridge_stopped), Toast.LENGTH_SHORT).show()
+                        } else {
+                            if (activeProxy != null) {
+                                repository.setBridgeEnabled(true)
+                                BifrostBridgeService.start(context)
+                                Toast.makeText(context, context.getString(R.string.toast_bridge_started), Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, context.getString(R.string.toast_select_worker_first), Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
+                    containerColor = CardBackground,
+                    contentColor = if (isBridgeRunning) NeonEmerald else DangerRed.copy(alpha = 0.85f),
+                    shape = CircleShape,
+                    modifier = Modifier
+                        .size(56.dp)
+                        .border(
+                            width = if (isBridgeRunning) 2.dp else 1.2.dp,
+                            color = if (isBridgeRunning) NeonEmerald else CardStroke,
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.PowerSettingsNew,
+                        contentDescription = if (isBridgeRunning) stringResource(R.string.status_stopped) else stringResource(R.string.status_active),
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
+
+                // Main FAB
+                FloatingActionButton(
+                    onClick = { isFabExpanded = !isFabExpanded },
+                    containerColor = NeonCyan,
+                    contentColor = DarkBackground,
+                    shape = CircleShape,
+                    modifier = Modifier.size(56.dp)
+                ) {
+                    Icon(
+                        imageVector = if (isFabExpanded) Icons.Default.Close else Icons.Default.Add,
+                        contentDescription = stringResource(R.string.action_add_proxy),
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
+            }
         }
     }
 

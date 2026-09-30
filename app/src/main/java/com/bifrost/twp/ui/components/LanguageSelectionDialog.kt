@@ -104,10 +104,10 @@ fun LanguageSelectionDialog(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                // Option 1: Persian (Vazir)
+                // Option 1: Persian
                 LanguageOptionCard(
-                    title = "فارسی (وزیر)",
-                    subtitle = "رابط کاربری راست‌به‌چپ با فونت زیبای وزیرمتن",
+                    title = "فارسی",
+                    subtitle = "رابط کاربری زبان فارسی",
                     isSelected = selectedLanguage == "fa",
                     isVazir = true,
                     onClick = { selectedLanguage = "fa" }
@@ -118,7 +118,7 @@ fun LanguageSelectionDialog(
                 // Option 2: English
                 LanguageOptionCard(
                     title = "English",
-                    subtitle = "Standard left-to-right interface & system typography",
+                    subtitle = "English user interface",
                     isSelected = selectedLanguage == "en",
                     isVazir = false,
                     onClick = { selectedLanguage = "en" }

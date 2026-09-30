@@ -51,7 +51,7 @@ object CloudflareDeployer {
             // Step 4: 70% - Upload and deploy Worker script
             val randomId = Random.nextInt(100000, 999999)
             val scriptName = "bifrost-$randomId"
-            onProgress(70, "در حال آپلود و ایجاد اسکریپت در کلادفلر ($scriptName)...")
+            onProgress(70, "در حال آپلود و ایجاد اسکریپت در کلادفلر...")
             uploadWorkerScript(cleanToken, accountId, scriptName, workerCode, secretKey?.trim())
 
             // Step 5: 85% - Enable workers.dev subdomain route for script
@@ -89,7 +89,7 @@ object CloudflareDeployer {
             val body = response.body?.string().orEmpty()
             if (!response.isSuccessful) {
                 val errorMsg = extractErrorMessage(body)
-                throw IllegalStateException("خطا در ارتباط با کلادفلر (${response.code}): $errorMsg")
+                throw IllegalStateException("خطا در ارتباط با کلادفلر با کد ${response.code}: $errorMsg")
             }
 
             val json = JSONObject(body)
@@ -100,7 +100,7 @@ object CloudflareDeployer {
 
             val result = json.optJSONArray("result")
             if (result == null || result.length() == 0) {
-                throw IllegalStateException("هیچ حسابی (Account) مرتبط با این کلید یافت نشد. لطفاً از وجود اکانت در کلادفلر مطمئن شوید.")
+                throw IllegalStateException("هیچ حسابی مرتبط با این کلید یافت نشد. لطفاً از وجود حساب در کلادفلر مطمئن شوید.")
             }
 
             return result.getJSONObject(0).getString("id")
@@ -143,7 +143,7 @@ object CloudflareDeployer {
 
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                throw IllegalStateException("خطا در دریافت کد ورکر از گیت‌هاب (کد: ${response.code})")
+                throw IllegalStateException("خطا در دریافت کد ورکر از گیت‌هاب با کد ${response.code}")
             }
             val code = response.body?.string().orEmpty()
             if (code.isBlank()) {
