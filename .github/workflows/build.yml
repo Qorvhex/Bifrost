@@ -55,6 +55,9 @@ jobs:
             echo "$KEY_CLEAN" | base64 -d > app/private_key.pk8
             echo "$CERT_CLEAN" | base64 -d > app/certificate.pem
 
+            # Normalize PEM formatting (ensure proper RFC 7468 headers and line breaks)
+            python3 -c 'import re; t = open("app/certificate.pem", "r", encoding="utf-8", errors="ignore").read(); b = re.sub(r"-----[^-]+-----|\s+", "", t); open("app/certificate.pem", "w", encoding="utf-8").write("-----BEGIN CERTIFICATE-----\n" + "\n".join(b[i:i+64] for i in range(0, len(b), 64)) + "\n-----END CERTIFICATE-----\n")'
+
             # Convert PKCS#8 DER private key to PEM
             openssl pkcs8 -in app/private_key.pk8 -inform DER -out app/private_key.pem -nocrypt
 
