@@ -39,20 +39,47 @@ jobs:
 
       - name: Setup Production Release Keystore
         env:
+          SIGN_KEY_BASE64: ${{ secrets.SIGN_KEY_BASE64 }}
+          SIGN_CERT_BASE64: ${{ secrets.SIGN_CERT_BASE64 }}
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEY_ALIAS_SECRET: ${{ secrets.KEY_ALIAS }}
           KEYSTORE_PASSWORD_SECRET: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD_SECRET: ${{ secrets.KEY_PASSWORD }}
         run: |
+          KEY_CLEAN=$(echo "$SIGN_KEY_BASE64" | tr -d '\r\n[:space:]')
+          CERT_CLEAN=$(echo "$SIGN_CERT_BASE64" | tr -d '\r\n[:space:]')
           KEYSTORE_CLEAN=$(echo "$KEYSTORE_BASE64" | tr -d '\r\n[:space:]')
-          if [ -n "$KEYSTORE_CLEAN" ]; then
+
+          if [ -n "$KEY_CLEAN" ] && [ -n "$CERT_CLEAN" ]; then
+            echo "Configuring custom PKCS#8 key and X.509 certificate..."
+            echo "$KEY_CLEAN" | base64 -d > app/private_key.pk8
+            echo "$CERT_CLEAN" | base64 -d > app/certificate.pem
+
+            # Convert PKCS#8 DER private key to PEM
+            openssl pkcs8 -in app/private_key.pk8 -inform DER -out app/private_key.pem -nocrypt
+
+            # Package certificate and private key into standard PKCS12/JKS keystore for Gradle
+            openssl pkcs12 -export \
+              -in app/certificate.pem \
+              -inkey app/private_key.pem \
+              -out app/release-keystore.jks \
+              -name bifrost \
+              -password pass:bifrost123
+
+            # Securely remove temporary raw key files
+            rm -f app/private_key.pk8 app/private_key.pem app/certificate.pem
+
+            echo "KEY_ALIAS=bifrost" >> $GITHUB_ENV
+            echo "KEYSTORE_PASSWORD=bifrost123" >> $GITHUB_ENV
+            echo "KEY_PASSWORD=bifrost123" >> $GITHUB_ENV
+          elif [ -n "$KEYSTORE_CLEAN" ]; then
             echo "Using custom release keystore from repository secrets..."
             echo "$KEYSTORE_CLEAN" | base64 -d > app/release-keystore.jks
             echo "KEY_ALIAS=${KEY_ALIAS_SECRET:-bifrost}" >> $GITHUB_ENV
             echo "KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD_SECRET:-bifrost123}" >> $GITHUB_ENV
             echo "KEY_PASSWORD=${KEY_PASSWORD_SECRET:-bifrost123}" >> $GITHUB_ENV
           else
-            echo "Generating production release keystore for signing..."
+            echo "Generating fallback production release keystore for signing..."
             keytool -genkeypair -v \
               -keystore app/release-keystore.jks \
               -alias bifrost \
@@ -69,6 +96,14 @@ jobs:
 
       - name: Build Signed Release APK
         run: ./gradlew assembleRelease --stacktrace
+
+      - name: Verify APK Signature
+        run: |
+          APK_FILE=$(find app/build/outputs/apk/release/ -name "*.apk" | head -n 1)
+          if [ -f "$APK_FILE" ]; then
+            echo "Verifying cryptographic signature of: $APK_FILE"
+            $ANDROID_HOME/build-tools/34.0.0/apksigner verify --verbose --print-certs "$APK_FILE" || true
+          fi
 
       - name: Upload Signed Release APK
         uses: actions/upload-artifact@v4

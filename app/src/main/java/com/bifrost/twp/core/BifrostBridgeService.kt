@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Build
 import android.os.IBinder
@@ -85,7 +86,7 @@ class BifrostBridgeService : Service() {
                 return START_STICKY
             } else {
                 // Must call startForeground before stopping if launched via startForegroundService
-                startForeground(NOTIFICATION_ID, buildNotification(BridgeState.STOPPED, 0))
+                startForegroundCompat(buildNotification(BridgeState.STOPPED, 0))
                 stopBridge()
                 stopSelf()
                 return START_NOT_STICKY
@@ -107,6 +108,18 @@ class BifrostBridgeService : Service() {
         return START_STICKY
     }
 
+    private fun startForegroundCompat(notification: Notification) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+    }
+
     private fun startBridge() {
         if (_serviceRunning.value) return
 
@@ -115,7 +128,7 @@ class BifrostBridgeService : Service() {
 
         repository.setBridgeEnabled(true)
 
-        startForeground(NOTIFICATION_ID, buildNotification(BridgeState.LISTENING, 0))
+        startForegroundCompat(buildNotification(BridgeState.LISTENING, 0))
         _serviceRunning.value = true
         _bridgeState.value = BridgeState.LISTENING
 
