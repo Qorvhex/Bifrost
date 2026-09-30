@@ -108,15 +108,21 @@ class BifrostBridgeService : Service() {
         return START_STICKY
     }
 
-    private fun startForegroundCompat(notification: Notification) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(
-                NOTIFICATION_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-            )
-        } else {
-            startForeground(NOTIFICATION_ID, notification)
+    private fun startForegroundCompat(notification: Notification): Boolean {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, notification)
+            }
+            true
+        } catch (e: Exception) {
+            android.util.Log.e("BifrostBridgeService", "Failed to start foreground", e)
+            false
         }
     }
 
@@ -128,7 +134,14 @@ class BifrostBridgeService : Service() {
 
         repository.setBridgeEnabled(true)
 
-        startForegroundCompat(buildNotification(BridgeState.LISTENING, 0))
+        val success = startForegroundCompat(buildNotification(BridgeState.LISTENING, 0))
+        if (!success) {
+            _serviceRunning.value = false
+            _bridgeState.value = BridgeState.STOPPED
+            stopSelf()
+            return
+        }
+
         _serviceRunning.value = true
         _bridgeState.value = BridgeState.LISTENING
 
@@ -258,21 +271,31 @@ class BifrostBridgeService : Service() {
         val connectionCount: StateFlow<Int> = _connectionCount.asStateFlow()
 
         fun start(context: Context) {
-            val intent = Intent(context, BifrostBridgeService::class.java).apply {
-                action = ACTION_START
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
+            try {
+                val appContext = context.applicationContext ?: context
+                val intent = Intent(appContext, BifrostBridgeService::class.java).apply {
+                    action = ACTION_START
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    appContext.startForegroundService(intent)
+                } else {
+                    appContext.startService(intent)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("BifrostBridgeService", "Failed to start service", e)
             }
         }
 
         fun stop(context: Context) {
-            val intent = Intent(context, BifrostBridgeService::class.java).apply {
-                action = ACTION_STOP
+            try {
+                val appContext = context.applicationContext ?: context
+                val intent = Intent(appContext, BifrostBridgeService::class.java).apply {
+                    action = ACTION_STOP
+                }
+                appContext.startService(intent)
+            } catch (e: Exception) {
+                android.util.Log.e("BifrostBridgeService", "Failed to stop service", e)
             }
-            context.startService(intent)
         }
     }
 }

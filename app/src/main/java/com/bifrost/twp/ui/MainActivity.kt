@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import com.bifrost.twp.R
+import com.bifrost.twp.core.BifrostBridgeService
 import com.bifrost.twp.data.ProxyRepository
 import com.bifrost.twp.ui.components.MainScreen
 import com.bifrost.twp.ui.theme.BifrostTheme
@@ -26,14 +27,18 @@ class MainActivity : ComponentActivity() {
         }
 
     override fun attachBaseContext(newBase: android.content.Context) {
-        val prefs = newBase.getSharedPreferences("bifrost_preferences", android.content.Context.MODE_PRIVATE)
-        val lang = prefs.getString("key_app_language", "en") ?: "en"
-        val locale = java.util.Locale(lang)
-        java.util.Locale.setDefault(locale)
-        val config = android.content.res.Configuration(newBase.resources.configuration)
-        config.setLocale(locale)
-        config.setLayoutDirection(locale)
-        super.attachBaseContext(newBase.createConfigurationContext(config))
+        try {
+            val prefs = newBase.getSharedPreferences("bifrost_preferences", android.content.Context.MODE_PRIVATE)
+            val lang = prefs.getString("key_app_language", "en") ?: "en"
+            val locale = java.util.Locale(lang)
+            java.util.Locale.setDefault(locale)
+            val config = android.content.res.Configuration(newBase.resources.configuration)
+            config.setLocale(locale)
+            config.setLayoutDirection(locale)
+            super.attachBaseContext(newBase.createConfigurationContext(config))
+        } catch (_: Exception) {
+            super.attachBaseContext(newBase)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +67,25 @@ class MainActivity : ComponentActivity() {
                         startActivity(intent)
                     }
                 )
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val isServiceRunning = BifrostBridgeService.serviceRunning.value
+        val isBridgeEnabled = repository.isBridgeEnabledFlow.value
+        val isRunOnStartup = repository.runOnStartupFlow.value
+        val hasActiveProxy = repository.activeProxyFlow.value != null
+
+        if (isBridgeEnabled && isRunOnStartup && hasActiveProxy) {
+            if (!isServiceRunning) {
+                repository.setBridgeEnabled(true)
+                BifrostBridgeService.start(this)
+            }
+        } else if (!isServiceRunning) {
+            if (!isBridgeEnabled || !isRunOnStartup || !hasActiveProxy) {
+                repository.setBridgeEnabled(false)
             }
         }
     }

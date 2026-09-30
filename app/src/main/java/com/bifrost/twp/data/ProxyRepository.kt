@@ -161,13 +161,13 @@ class ProxyRepository private constructor(context: Context) {
 
     @Synchronized
     fun setBridgeEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_BRIDGE_ENABLED, enabled).apply()
+        prefs.edit().putBoolean(KEY_BRIDGE_ENABLED, enabled).commit()
         _isBridgeEnabledFlow.value = enabled
     }
 
     @Synchronized
     fun setRunOnStartup(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_RUN_ON_STARTUP, enabled).apply()
+        prefs.edit().putBoolean(KEY_RUN_ON_STARTUP, enabled).commit()
         _runOnStartupFlow.value = enabled
     }
 

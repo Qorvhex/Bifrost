@@ -618,6 +618,22 @@ fun MainScreen(
             },
             onToggleRunOnStartup = { enabled ->
                 repository.setRunOnStartup(enabled)
+                if (enabled) {
+                    try {
+                        val powerManager = context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+                        if (powerManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            if (!powerManager.isIgnoringBatteryOptimizations(context.packageName)) {
+                                val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                                    data = Uri.parse("package:${context.packageName}")
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                }
+                                context.startActivity(intent)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
             },
             onLanguageChanged = { newLang ->
                 repository.setAppLanguage(newLang)
