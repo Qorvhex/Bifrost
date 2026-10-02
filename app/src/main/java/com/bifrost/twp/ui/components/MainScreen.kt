@@ -122,13 +122,13 @@ fun MainScreen(
                 context.packageManager.getPackageInfo(
                     context.packageName,
                     PackageManager.PackageInfoFlags.of(0)
-                ).versionName ?: "1.1.5"
+                ).versionName ?: "1.1.8"
             } else {
                 @Suppress("DEPRECATION")
-                context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.1.5"
+                context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.1.8"
             }
         } catch (_: Exception) {
-            "1.1.5"
+            "1.1.8"
         }
     }
 
