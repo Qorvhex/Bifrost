@@ -187,13 +187,21 @@ fun ShareProxyDialog(
 
                 Button(
                     onClick = {
-                        val sendIntent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_TEXT, twpLink)
-                            type = "text/plain"
+                        try {
+                            val sendIntent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, twpLink)
+                                type = "text/plain"
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            val shareIntent = Intent.createChooser(sendIntent, shareChooserTitle).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            context.startActivity(shareIntent)
+                        } catch (e: Exception) {
+                            android.util.Log.e("ShareProxyDialog", "Failed to share link", e)
+                            Toast.makeText(context, context.getString(R.string.msg_network_error), Toast.LENGTH_SHORT).show()
                         }
-                        val shareIntent = Intent.createChooser(sendIntent, shareChooserTitle)
-                        context.startActivity(shareIntent)
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp),
@@ -217,9 +225,13 @@ fun ShareProxyDialog(
 }
 
 private fun copyToClipboard(context: Context, text: String, message: String) {
-    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newPlainText("Bifrost Proxy Link", text)
-    clipboard.setPrimaryClip(clip)
-    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    try {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        val clip = ClipData.newPlainText("Bifrost Proxy Link", text)
+        clipboard?.setPrimaryClip(clip)
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    } catch (e: Exception) {
+        android.util.Log.e("ShareProxyDialog", "Failed to copy to clipboard", e)
+    }
 }
 

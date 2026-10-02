@@ -104,4 +104,66 @@ object TelegramLauncher {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
+
+    /**
+     * Directly opens a Telegram channel or username in the installed Telegram app
+     * using the tg:// scheme and package targeting to prevent opening a web browser.
+     */
+    fun openTelegramChannel(context: Context, channelUsername: String = "Qorvhex_Channel"): Boolean {
+        val appContext = context.applicationContext ?: context
+        val cleanChannel = channelUsername
+            .removePrefix("@")
+            .removePrefix("https://t.me/")
+            .removePrefix("http://t.me/")
+            .removePrefix("t.me/")
+            .trim()
+        val tgSchemeUri = Uri.parse("tg://resolve?domain=$cleanChannel")
+        val httpsUri = Uri.parse("https://t.me/$cleanChannel")
+
+        // 1. Try explicit package targeting with tg://resolve (guarantees direct opening in TG app without browser)
+        for (pkg in KNOWN_TELEGRAM_PACKAGES) {
+            try {
+                appContext.packageManager.getPackageInfo(pkg, 0)
+                val intent = Intent(Intent.ACTION_VIEW, tgSchemeUri).apply {
+                    setPackage(pkg)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+                appContext.startActivity(intent)
+                return true
+            } catch (_: Exception) {}
+        }
+
+        // 2. Try generic ACTION_VIEW with tg://resolve
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, tgSchemeUri).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            appContext.startActivity(intent)
+            return true
+        } catch (_: Exception) {}
+
+        // 3. Fallback: Package-targeted https://t.me
+        for (pkg in KNOWN_TELEGRAM_PACKAGES) {
+            try {
+                appContext.packageManager.getPackageInfo(pkg, 0)
+                val intent = Intent(Intent.ACTION_VIEW, httpsUri).apply {
+                    setPackage(pkg)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+                appContext.startActivity(intent)
+                return true
+            } catch (_: Exception) {}
+        }
+
+        // 4. Final browser fallback if no TG client is installed
+        return try {
+            val intent = Intent(Intent.ACTION_VIEW, httpsUri).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            appContext.startActivity(intent)
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
 }

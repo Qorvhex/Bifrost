@@ -89,6 +89,8 @@ import com.bifrost.twp.ui.theme.NeonEmerald
 import com.bifrost.twp.ui.theme.TextMuted
 import com.bifrost.twp.ui.theme.TextPrimary
 import com.bifrost.twp.ui.theme.TextSecondary
+import androidx.compose.runtime.LaunchedEffect
+import com.bifrost.twp.util.TelegramLauncher
 import com.bifrost.twp.util.UpdateChecker
 import com.bifrost.twp.util.UpdateResult
 import kotlinx.coroutines.launch
@@ -150,6 +152,23 @@ fun MainScreen(
         ),
         label = "rotation"
     )
+
+    // Automatically check for updates upon entering the app
+    LaunchedEffect(Unit) {
+        isCheckingUpdate = true
+        try {
+            val result = UpdateChecker.checkUpdate(currentVersionName)
+            result.onSuccess { info ->
+                if (info.hasUpdate) {
+                    updateResultToShow = info
+                }
+            }
+        } catch (_: Exception) {
+            // Silently ignore network or parsing issues on auto-check
+        } finally {
+            isCheckingUpdate = false
+        }
+    }
 
     // FAB Speed Dial State
     var isFabExpanded by remember { mutableStateOf(false) }
@@ -242,12 +261,7 @@ fun MainScreen(
 
                         // Telegram Channel
                         IconButton(onClick = {
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/Qorvhex_Channel")).apply {
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                }
-                                context.startActivity(intent)
-                            } catch (_: Exception) {}
+                            TelegramLauncher.openTelegramChannel(context, "Qorvhex_Channel")
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_telegram),
