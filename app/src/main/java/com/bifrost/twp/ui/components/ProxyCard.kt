@@ -129,7 +129,7 @@ fun ProxyCard(
                         modifier = Modifier.size(32.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.QrCode,
+                            imageVector = Icons.Outlined.Share,
                             contentDescription = stringResource(R.string.action_share),
                             tint = TextSecondary,
                             modifier = Modifier.size(16.dp)
