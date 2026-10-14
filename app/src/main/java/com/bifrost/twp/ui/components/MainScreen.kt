@@ -446,14 +446,18 @@ fun MainScreen(
             )
         }
 
-        // FAB and Speed Dial Overlay (Unblurred when FAB is expanded, blurred when a dialog is active)
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 24.dp, end = 20.dp)
-                .blur(if (isDialogOpen) 16.dp else 0.dp),
-            contentAlignment = Alignment.BottomEnd
+        // FAB and Speed Dial Overlay (Hidden when a modal dialog is active)
+        AnimatedVisibility(
+            visible = !isDialogOpen,
+            enter = fadeIn(tween(180)),
+            exit = fadeOut(tween(140))
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 24.dp, end = 20.dp),
+                contentAlignment = Alignment.BottomEnd
+            ) {
             Column(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -619,6 +623,7 @@ fun MainScreen(
             }
         }
     }
+}
 
     // First-launch Language Selection Dialog
     if (!hasSelectedLanguage) {
