@@ -263,6 +263,18 @@ fun BouncyFloatingActionButton(
 }
 
 /**
+ * Scope providing dismiss action for BifrostModalDialog.
+ * Allows calling dismissWithAnimation() with no arguments, or with a trailing lambda onComplete.
+ */
+class ModalDismissScope internal constructor(
+    private val onDismissAction: (onComplete: (() -> Unit)?) -> Unit
+) {
+    operator fun invoke(onComplete: (() -> Unit)? = null) {
+        onDismissAction(onComplete)
+    }
+}
+
+/**
  * Full-featured modal dialog with elastic spring entrance and graceful exit transitions.
  *
  * Provides a `dismissWithAnimation` callback to allow dismiss actions (Back press, outside click,
@@ -272,20 +284,22 @@ fun BouncyFloatingActionButton(
 fun BifrostModalDialog(
     onDismissRequest: () -> Unit,
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
-    content: @Composable (dismissWithAnimation: (onComplete: (() -> Unit)?) -> Unit) -> Unit
+    content: @Composable (dismissWithAnimation: ModalDismissScope) -> Unit
 ) {
     var isVisible by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    val dismissWithAnimation: (onComplete: (() -> Unit)?) -> Unit = { action ->
-        if (isVisible) {
-            isVisible = false
-            coroutineScope.launch {
-                delay(200) // Allow exit animation to complete smoothly
-                if (action != null) {
-                    action()
-                } else {
-                    onDismissRequest()
+    val dismissWithAnimation = remember(coroutineScope, onDismissRequest) {
+        ModalDismissScope { action ->
+            if (isVisible) {
+                isVisible = false
+                coroutineScope.launch {
+                    delay(200) // Allow exit animation to complete smoothly
+                    if (action != null) {
+                        action()
+                    } else {
+                        onDismissRequest()
+                    }
                 }
             }
         }
