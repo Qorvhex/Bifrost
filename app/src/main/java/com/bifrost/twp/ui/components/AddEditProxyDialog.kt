@@ -28,7 +28,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import com.bifrost.twp.ui.components.motion.BifrostModalDialog
+import com.bifrost.twp.ui.components.motion.BouncyButton
+import com.bifrost.twp.ui.components.motion.BouncyOutlinedButton
 import com.bifrost.twp.R
 import com.bifrost.twp.model.ProxyConfig
 import com.bifrost.twp.ui.theme.BifrostTheme
@@ -56,7 +58,7 @@ fun AddEditProxyDialog(
 
     var hostError by remember { mutableStateOf(false) }
 
-    Dialog(onDismissRequest = onDismiss) {
+    BifrostModalDialog(onDismissRequest = onDismiss) { dismissWithAnimation ->
         BifrostTheme(language = LocalAppLanguage.current) {
             Column(
                 modifier = Modifier
@@ -137,8 +139,8 @@ fun AddEditProxyDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                OutlinedButton(
-                    onClick = onDismiss,
+                BouncyOutlinedButton(
+                    onClick = { dismissWithAnimation(null) },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary)
                 ) {
@@ -147,12 +149,12 @@ fun AddEditProxyDialog(
 
                 Spacer(modifier = Modifier.width(10.dp))
 
-                Button(
+                BouncyButton(
                     onClick = {
                         val cleanHost = workerHost.trim()
                         if (cleanHost.isBlank()) {
                             hostError = true
-                            return@Button
+                            return@BouncyButton
                         }
 
                         val finalName = if (name.isNotBlank()) name.trim() else cleanHost
@@ -170,7 +172,7 @@ fun AddEditProxyDialog(
                             port = 443
                         )
 
-                        onSave(config)
+                        dismissWithAnimation { onSave(config) }
                     },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(

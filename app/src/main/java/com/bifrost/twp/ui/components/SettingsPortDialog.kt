@@ -46,7 +46,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import com.bifrost.twp.ui.components.motion.BifrostModalDialog
+import com.bifrost.twp.ui.components.motion.BouncyButton
+import com.bifrost.twp.ui.components.motion.BouncyOutlinedButton
+import com.bifrost.twp.ui.components.motion.bounceClick
 import com.bifrost.twp.R
 import com.bifrost.twp.ui.theme.BifrostTheme
 import com.bifrost.twp.ui.theme.CardBackground
@@ -75,7 +78,7 @@ fun SettingsDialog(
     var startupEnabled by remember { mutableStateOf(runOnStartup) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    Dialog(onDismissRequest = onDismiss) {
+    BifrostModalDialog(onDismissRequest = onDismiss) { dismissWithAnimation ->
         BifrostTheme(language = currentLanguage) {
             Column(
                 modifier = Modifier
@@ -109,10 +112,9 @@ fun SettingsDialog(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Section 1: Create Proxy Button
-            Button(
+            BouncyButton(
                 onClick = {
-                    onDismiss()
-                    onCreateProxyClick()
+                    dismissWithAnimation { onCreateProxyClick() }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -284,8 +286,8 @@ fun SettingsDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                OutlinedButton(
-                    onClick = onDismiss,
+                BouncyOutlinedButton(
+                    onClick = { dismissWithAnimation(null) },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary)
                 ) {
@@ -294,14 +296,14 @@ fun SettingsDialog(
 
                 Spacer(modifier = Modifier.width(10.dp))
 
-                Button(
+                BouncyButton(
                     onClick = {
                         val parsed = portText.toIntOrNull()
                         if (parsed == null || parsed !in 1024..65535) {
                             error = portInvalidMsg
-                            return@Button
+                            return@BouncyButton
                         }
-                        onSavePort(parsed)
+                        dismissWithAnimation { onSavePort(parsed) }
                     },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -333,7 +335,7 @@ private fun LanguageChip(
             .clip(RoundedCornerShape(10.dp))
             .background(DarkBackground.copy(alpha = bgAlpha))
             .border(if (isSelected) 1.5.dp else 1.dp, borderColor, RoundedCornerShape(10.dp))
-            .clickable { onClick() }
+            .bounceClick(scaleDown = 0.96f) { onClick() }
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
