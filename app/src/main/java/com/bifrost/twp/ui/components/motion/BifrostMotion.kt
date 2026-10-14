@@ -21,7 +21,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -34,6 +36,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,12 +47,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -294,12 +300,9 @@ fun BifrostModalDialog(
             if (isVisible) {
                 isVisible = false
                 coroutineScope.launch {
-                    delay(200) // Allow exit animation to complete smoothly
-                    if (action != null) {
-                        action()
-                    } else {
-                        onDismissRequest()
-                    }
+                    delay(180) // Allow exit animation to complete smoothly
+                    onDismissRequest()
+                    action?.invoke()
                 }
             }
         }
@@ -315,10 +318,15 @@ fun BifrostModalDialog(
         },
         properties = properties
     ) {
+        val dialogWindowProvider = LocalView.current.parent as? DialogWindowProvider
+        SideEffect {
+            dialogWindowProvider?.window?.setWindowAnimations(0)
+        }
+
         AnimatedVisibility(
             visible = isVisible,
-            enter = fadeIn(tween(220, easing = FastOutSlowInEasing)),
-            exit = fadeOut(tween(180, easing = FastOutLinearInEasing))
+            enter = fadeIn(tween(200, easing = FastOutSlowInEasing)),
+            exit = fadeOut(tween(160, easing = FastOutLinearInEasing))
         ) {
             Box(
                 modifier = Modifier
@@ -335,16 +343,12 @@ fun BifrostModalDialog(
             ) {
                 Box(
                     modifier = Modifier
+                        .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 24.dp)
                         .animateEnterExit(
                             enter = scaleIn(
-                                initialScale = 0.82f,
-                                animationSpec = spring(
-                                    dampingRatio = Spring.DampingRatioLowBouncy,
-                                    stiffness = Spring.StiffnessMediumLow
-                                )
-                            ) + slideInVertically(
-                                initialOffsetY = { 60 },
+                                initialScale = 0.85f,
+                                transformOrigin = TransformOrigin.Center,
                                 animationSpec = spring(
                                     dampingRatio = Spring.DampingRatioLowBouncy,
                                     stiffness = Spring.StiffnessMediumLow
@@ -352,10 +356,8 @@ fun BifrostModalDialog(
                             ),
                             exit = scaleOut(
                                 targetScale = 0.85f,
-                                animationSpec = tween(180, easing = FastOutLinearInEasing)
-                            ) + slideOutVertically(
-                                targetOffsetY = { 50 },
-                                animationSpec = tween(180, easing = FastOutLinearInEasing)
+                                transformOrigin = TransformOrigin.Center,
+                                animationSpec = tween(160, easing = FastOutLinearInEasing)
                             )
                         )
                         .clickable(

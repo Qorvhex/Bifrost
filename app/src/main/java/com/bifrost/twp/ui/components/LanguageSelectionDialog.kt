@@ -58,7 +58,11 @@ fun LanguageSelectionDialog(
 
     BifrostModalDialog(
         onDismissRequest = {}, // Non-dismissible on first run
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false
+        )
     ) { dismissWithAnimation ->
         BifrostTheme(language = selectedLanguage) {
             Box(

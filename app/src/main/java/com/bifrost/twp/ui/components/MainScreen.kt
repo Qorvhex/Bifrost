@@ -688,6 +688,7 @@ fun MainScreen(
                 repository.setAppLanguage(newLang)
             },
             onCreateProxyClick = {
+                showSettingsDialog = false
                 showCreateProxyDialog = true
             }
         )
