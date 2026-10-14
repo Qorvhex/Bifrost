@@ -5,5 +5,16 @@
         <item name="android:navigationBarColor">@color/bg_dark</item>
         <item name="android:windowBackground">@color/bg_dark</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:dialogTheme">@style/Theme.Bifrost.Dialog</item>
+        <item name="android:alertDialogTheme">@style/Theme.Bifrost.Dialog</item>
+    </style>
+
+    <style name="Theme.Bifrost.Dialog" parent="android:Theme.Material.Dialog">
+        <item name="android:windowAnimationStyle">@style/DialogNoAnimation</item>
+    </style>
+
+    <style name="DialogNoAnimation">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@null</item>
     </style>
 </resources>

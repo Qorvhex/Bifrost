@@ -92,8 +92,7 @@ fun CreateProxyDialog(
     BifrostModalDialog(
         onDismissRequest = {
             if (!isDeploying) onDismiss()
-        },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        }
     ) { dismissWithAnimation ->
         BifrostTheme(language = LocalAppLanguage.current) {
             val emptyTokenMsg = stringResource(R.string.cf_err_empty_token)

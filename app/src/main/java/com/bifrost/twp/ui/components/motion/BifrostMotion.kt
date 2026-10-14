@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
+import com.bifrost.twp.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -289,7 +290,10 @@ class ModalDismissScope internal constructor(
 @Composable
 fun BifrostModalDialog(
     onDismissRequest: () -> Unit,
-    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    properties: DialogProperties = DialogProperties(
+        usePlatformDefaultWidth = false,
+        decorFitsSystemWindows = false
+    ),
     content: @Composable (dismissWithAnimation: ModalDismissScope) -> Unit
 ) {
     var isVisible by remember { mutableStateOf(false) }
@@ -320,46 +324,45 @@ fun BifrostModalDialog(
     ) {
         val dialogWindowProvider = LocalView.current.parent as? DialogWindowProvider
         SideEffect {
-            dialogWindowProvider?.window?.setWindowAnimations(0)
+            dialogWindowProvider?.window?.let { window ->
+                window.setDimAmount(0f)
+                window.setWindowAnimations(R.style.DialogNoAnimation)
+            }
         }
 
-        AnimatedVisibility(
-            visible = isVisible,
-            enter = fadeIn(tween(200, easing = FastOutSlowInEasing)),
-            exit = fadeOut(tween(160, easing = FastOutLinearInEasing))
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    if (properties.dismissOnClickOutside) {
+                        dismissWithAnimation()
+                    }
+                },
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {
-                        if (properties.dismissOnClickOutside) {
-                            dismissWithAnimation()
-                        }
-                    },
-                contentAlignment = Alignment.Center
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn(tween(200, easing = FastOutSlowInEasing)) + scaleIn(
+                    initialScale = 0.85f,
+                    transformOrigin = TransformOrigin.Center,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessMediumLow
+                    )
+                ),
+                exit = fadeOut(tween(160, easing = FastOutLinearInEasing)) + scaleOut(
+                    targetScale = 0.85f,
+                    transformOrigin = TransformOrigin.Center,
+                    animationSpec = tween(160, easing = FastOutLinearInEasing)
+                )
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 24.dp)
-                        .animateEnterExit(
-                            enter = scaleIn(
-                                initialScale = 0.85f,
-                                transformOrigin = TransformOrigin.Center,
-                                animationSpec = spring(
-                                    dampingRatio = Spring.DampingRatioLowBouncy,
-                                    stiffness = Spring.StiffnessMediumLow
-                                )
-                            ),
-                            exit = scaleOut(
-                                targetScale = 0.85f,
-                                transformOrigin = TransformOrigin.Center,
-                                animationSpec = tween(160, easing = FastOutLinearInEasing)
-                            )
-                        )
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null

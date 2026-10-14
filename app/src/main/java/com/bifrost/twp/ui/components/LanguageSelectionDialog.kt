@@ -61,7 +61,8 @@ fun LanguageSelectionDialog(
         properties = DialogProperties(
             dismissOnBackPress = false,
             dismissOnClickOutside = false,
-            usePlatformDefaultWidth = false
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
         )
     ) { dismissWithAnimation ->
         BifrostTheme(language = selectedLanguage) {
