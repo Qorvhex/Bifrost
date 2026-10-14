@@ -10,6 +10,9 @@
     </style>
 
     <style name="Theme.Bifrost.Dialog" parent="android:Theme.Material.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">false</item>
         <item name="android:windowAnimationStyle">@style/DialogNoAnimation</item>
     </style>
 
