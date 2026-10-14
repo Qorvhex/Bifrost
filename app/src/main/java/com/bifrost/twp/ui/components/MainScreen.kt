@@ -188,9 +188,12 @@ fun MainScreen(
         label = "fab_rotation"
     )
 
-    // Any overlay/popup active -> background blur & scrim
-    val isAnyOverlayActive = !hasSelectedLanguage || isFabExpanded || showAddEditDialog || sharingProxy != null ||
+    // Dialog active state
+    val isDialogOpen = !hasSelectedLanguage || showAddEditDialog || sharingProxy != null ||
             showSettingsDialog || showCreateProxyDialog || updateResultToShow != null
+
+    // Any overlay/popup active -> background blur & scrim
+    val isAnyOverlayActive = isDialogOpen || isFabExpanded
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -443,11 +446,12 @@ fun MainScreen(
             )
         }
 
-        // FAB and Speed Dial Overlay (Unblurred, rendered on top of Scrim)
+        // FAB and Speed Dial Overlay (Unblurred when FAB is expanded, blurred when a dialog is active)
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 24.dp, end = 20.dp),
+                .padding(bottom = 24.dp, end = 20.dp)
+                .blur(if (isDialogOpen) 16.dp else 0.dp),
             contentAlignment = Alignment.BottomEnd
         ) {
             Column(

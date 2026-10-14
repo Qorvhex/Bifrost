@@ -14,6 +14,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -343,6 +344,19 @@ fun BifrostModalDialog(
                 },
             contentAlignment = Alignment.Center
         ) {
+            // Semi-transparent dark scrim backdrop
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn(tween(200)),
+                exit = fadeOut(tween(160))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.6f))
+                )
+            }
+
             AnimatedVisibility(
                 visible = isVisible,
                 enter = fadeIn(tween(200, easing = FastOutSlowInEasing)) + scaleIn(
