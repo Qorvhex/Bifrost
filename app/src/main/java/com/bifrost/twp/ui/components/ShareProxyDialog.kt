@@ -45,7 +45,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import com.bifrost.twp.ui.components.motion.BifrostModalDialog
+import com.bifrost.twp.ui.components.motion.BouncyButton
+import com.bifrost.twp.ui.components.motion.BouncyIconButton
+import com.bifrost.twp.ui.components.motion.BouncyOutlinedButton
 import com.bifrost.twp.R
 import com.bifrost.twp.model.ProxyConfig
 import com.bifrost.twp.model.TwpLinkParser
@@ -77,7 +80,7 @@ fun ShareProxyDialog(
         )
     }
 
-    Dialog(onDismissRequest = onDismiss) {
+    BifrostModalDialog(onDismissRequest = onDismiss) { dismissWithAnimation ->
         BifrostTheme(language = LocalAppLanguage.current) {
             val context = LocalContext.current
             val linkCopiedMsg = stringResource(R.string.msg_copied)
@@ -105,7 +108,7 @@ fun ShareProxyDialog(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
-                IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
+                BouncyIconButton(onClick = { dismissWithAnimation(null) }, modifier = Modifier.size(28.dp)) {
                     Icon(
                         imageVector = Icons.Outlined.Close,
                         contentDescription = stringResource(R.string.action_close),
@@ -168,7 +171,7 @@ fun ShareProxyDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                OutlinedButton(
+                BouncyOutlinedButton(
                     onClick = {
                         copyToClipboard(context, twpLink, linkCopiedMsg)
                     },
@@ -185,7 +188,7 @@ fun ShareProxyDialog(
                     Text(stringResource(R.string.action_copy_link), fontSize = 12.sp)
                 }
 
-                Button(
+                BouncyButton(
                     onClick = {
                         try {
                             val sendIntent = Intent().apply {

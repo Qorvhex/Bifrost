@@ -54,12 +54,15 @@ import com.bifrost.twp.ui.theme.TextPrimary
 import com.bifrost.twp.ui.theme.TextSecondary
 import com.bifrost.twp.ui.theme.WarningAmber
 
+import com.bifrost.twp.ui.components.motion.BouncyButton
+
 @Composable
 fun StatusHeader(
     bridgeState: BridgeState,
     activeConnections: Int,
     localPort: Int,
     activeProxy: ProxyConfig?,
+    onConnectTelegram: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -161,11 +164,9 @@ fun StatusHeader(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Quick Connect to Telegram Button
-            Button(
-                onClick = {
-                    com.bifrost.twp.util.TelegramLauncher.openTelegramSocks(context, localPort)
-                },
+            // Quick Connect to Telegram Button (with tactile spring bounce)
+            BouncyButton(
+                onClick = onConnectTelegram,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(44.dp),

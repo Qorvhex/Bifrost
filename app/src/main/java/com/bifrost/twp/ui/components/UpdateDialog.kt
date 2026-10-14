@@ -32,7 +32,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import com.bifrost.twp.ui.components.motion.BifrostModalDialog
+import com.bifrost.twp.ui.components.motion.BouncyButton
+import com.bifrost.twp.ui.components.motion.BouncyOutlinedButton
 import com.bifrost.twp.R
 import com.bifrost.twp.ui.theme.BifrostTheme
 import com.bifrost.twp.ui.theme.CardBackground
@@ -52,7 +54,7 @@ fun UpdateDialog(
 ) {
     val context = LocalContext.current
 
-    Dialog(onDismissRequest = onDismiss) {
+    BifrostModalDialog(onDismissRequest = onDismiss) { dismissWithAnimation ->
         BifrostTheme(language = LocalAppLanguage.current) {
             Box(
                 modifier = Modifier
@@ -110,8 +112,8 @@ fun UpdateDialog(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
+                    BouncyOutlinedButton(
+                        onClick = { dismissWithAnimation(null) },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary)
                     ) {
@@ -120,7 +122,7 @@ fun UpdateDialog(
 
                     Spacer(modifier = Modifier.width(10.dp))
 
-                    Button(
+                    BouncyButton(
                         onClick = {
                             try {
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(updateResult.releaseUrl)).apply {
@@ -128,7 +130,7 @@ fun UpdateDialog(
                                 }
                                 context.startActivity(intent)
                             } catch (_: Exception) {}
-                            onDismiss()
+                            dismissWithAnimation(null)
                         },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(

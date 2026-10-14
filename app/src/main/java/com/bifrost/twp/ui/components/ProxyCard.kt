@@ -26,6 +26,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.bifrost.twp.ui.components.motion.BouncyIconButton
+import com.bifrost.twp.ui.components.motion.bounceClick
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,7 +67,7 @@ fun ProxyCard(
             .clip(RoundedCornerShape(14.dp))
             .background(CardBackground)
             .border(borderWidth, borderColor, RoundedCornerShape(14.dp))
-            .clickable { onSelect() }
+            .bounceClick(scaleDown = 0.98f) { onSelect() }
             .padding(14.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -112,7 +114,7 @@ fun ProxyCard(
 
                 // 3 Action Buttons (Edit, Share, Delete)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
+                    BouncyIconButton(
                         onClick = onEdit,
                         modifier = Modifier.size(32.dp)
                     ) {
@@ -124,7 +126,7 @@ fun ProxyCard(
                         )
                     }
 
-                    IconButton(
+                    BouncyIconButton(
                         onClick = onShare,
                         modifier = Modifier.size(32.dp)
                     ) {
@@ -136,7 +138,7 @@ fun ProxyCard(
                         )
                     }
 
-                    IconButton(
+                    BouncyIconButton(
                         onClick = onDelete,
                         modifier = Modifier.size(32.dp)
                     ) {

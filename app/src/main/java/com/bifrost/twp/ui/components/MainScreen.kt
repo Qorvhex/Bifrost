@@ -10,14 +10,21 @@ import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import com.bifrost.twp.ui.components.motion.BouncyButton
+import com.bifrost.twp.ui.components.motion.BouncyIconButton
+import com.bifrost.twp.ui.components.motion.BouncyFloatingActionButton
+import com.bifrost.twp.ui.components.motion.bounceClick
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -172,6 +179,14 @@ fun MainScreen(
 
     // FAB Speed Dial State
     var isFabExpanded by remember { mutableStateOf(false) }
+    val fabRotation by animateFloatAsState(
+        targetValue = if (isFabExpanded) 135f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "fab_rotation"
+    )
 
     // Any overlay/popup active -> background blur & scrim
     val isAnyOverlayActive = !hasSelectedLanguage || isFabExpanded || showAddEditDialog || sharingProxy != null ||
@@ -222,9 +237,9 @@ fun MainScreen(
                     },
                     actions = {
                         // Check for Updates Button (Spinning animation on click)
-                        IconButton(
+                        BouncyIconButton(
                             onClick = {
-                                if (isCheckingUpdate) return@IconButton
+                                if (isCheckingUpdate) return@BouncyIconButton
                                 isCheckingUpdate = true
                                 coroutineScope.launch {
                                     val result = UpdateChecker.checkUpdate(currentVersionName)
@@ -260,7 +275,7 @@ fun MainScreen(
                         }
 
                         // Telegram Channel
-                        IconButton(onClick = {
+                        BouncyIconButton(onClick = {
                             TelegramLauncher.openTelegramChannel(context, "Qorvhex_Channel")
                         }) {
                             Icon(
@@ -272,7 +287,7 @@ fun MainScreen(
                         }
 
                         // GitHub Repository
-                        IconButton(onClick = {
+                        BouncyIconButton(onClick = {
                             try {
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Qorvhex/Bifrost")).apply {
                                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -289,7 +304,7 @@ fun MainScreen(
                         }
 
                         // Settings Dialog
-                        IconButton(onClick = { showSettingsDialog = true }) {
+                        BouncyIconButton(onClick = { showSettingsDialog = true }) {
                             Icon(
                                 imageVector = Icons.Outlined.Settings,
                                 contentDescription = stringResource(R.string.settings_title),
@@ -317,7 +332,22 @@ fun MainScreen(
                         bridgeState = bridgeState,
                         activeConnections = activeConnections,
                         localPort = localPort,
-                        activeProxy = activeProxy
+                        activeProxy = activeProxy,
+                        onConnectTelegram = {
+                            if (activeProxy != null) {
+                                if (!isBridgeRunning) {
+                                    repository.setBridgeEnabled(true)
+                                    BifrostBridgeService.start(context)
+                                }
+                                TelegramLauncher.openTelegramSocks(context, localPort)
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.toast_select_worker_first),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
                     )
                 }
 
@@ -458,6 +488,7 @@ fun MainScreen(
                                     editingProxy = null
                                     showAddEditDialog = true
                                 },
+                                modifier = Modifier.bounceClick(scaleDown = 0.88f),
                                 containerColor = CardBackground,
                                 contentColor = NeonCyan,
                                 shape = CircleShape
@@ -488,6 +519,7 @@ fun MainScreen(
                                     isFabExpanded = false
                                     importFromClipboard(context, repository, isBridgeRunning)
                                 },
+                                modifier = Modifier.bounceClick(scaleDown = 0.88f),
                                 containerColor = CardBackground,
                                 contentColor = NeonEmerald,
                                 shape = CircleShape
@@ -518,6 +550,7 @@ fun MainScreen(
                                     isFabExpanded = false
                                     onLaunchQrScanner()
                                 },
+                                modifier = Modifier.bounceClick(scaleDown = 0.88f),
                                 containerColor = CardBackground,
                                 contentColor = NeonCyan,
                                 shape = CircleShape
@@ -529,7 +562,7 @@ fun MainScreen(
                 }
 
                 // Power Toggle Floating Action Button (Turn Proxy On / Off)
-                FloatingActionButton(
+                BouncyFloatingActionButton(
                     onClick = {
                         if (isBridgeRunning) {
                             repository.setBridgeEnabled(false)
@@ -563,8 +596,8 @@ fun MainScreen(
                     )
                 }
 
-                // Main FAB
-                FloatingActionButton(
+                // Main FAB with tactile spring bounce and 135-degree cross rotation
+                BouncyFloatingActionButton(
                     onClick = { isFabExpanded = !isFabExpanded },
                     containerColor = NeonCyan,
                     contentColor = DarkBackground,
@@ -572,9 +605,11 @@ fun MainScreen(
                     modifier = Modifier.size(56.dp)
                 ) {
                     Icon(
-                        imageVector = if (isFabExpanded) Icons.Default.Close else Icons.Default.Add,
+                        imageVector = Icons.Default.Add,
                         contentDescription = stringResource(R.string.action_add_proxy),
-                        modifier = Modifier.size(26.dp)
+                        modifier = Modifier
+                            .size(26.dp)
+                            .graphicsLayer { rotationZ = fabRotation }
                     )
                 }
             }

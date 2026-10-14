@@ -48,7 +48,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import com.bifrost.twp.ui.components.motion.BifrostModalDialog
+import com.bifrost.twp.ui.components.motion.BouncyButton
+import com.bifrost.twp.ui.components.motion.BouncyOutlinedButton
 import androidx.compose.ui.window.DialogProperties
 import com.bifrost.twp.R
 import com.bifrost.twp.model.ProxyConfig
@@ -87,19 +89,18 @@ fun CreateProxyDialog(
     val cfTokenUrl =
         "https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%5D&accountId=*&zoneId=all&name=Bifrost%20Proxy%20Token"
 
-    Dialog(
+    BifrostModalDialog(
         onDismissRequest = {
             if (!isDeploying) onDismiss()
         },
         properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
+    ) { dismissWithAnimation ->
         BifrostTheme(language = LocalAppLanguage.current) {
             val emptyTokenMsg = stringResource(R.string.cf_err_empty_token)
             val defaultDeployErrorMsg = stringResource(R.string.cf_err_deploy_failed)
 
             Box(
                 modifier = Modifier
-                    .padding(20.dp)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(20.dp))
                     .background(CardBackground)
@@ -158,7 +159,7 @@ fun CreateProxyDialog(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    Button(
+                    BouncyButton(
                         onClick = {
                             try {
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(cfTokenUrl)).apply {
@@ -350,8 +351,8 @@ fun CreateProxyDialog(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
+                    BouncyOutlinedButton(
+                        onClick = { dismissWithAnimation(null) },
                         enabled = !isDeploying,
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary)
@@ -364,11 +365,11 @@ fun CreateProxyDialog(
 
                     if (createdProxy == null) {
                         Spacer(modifier = Modifier.width(10.dp))
-                        Button(
+                        BouncyButton(
                             onClick = {
                                 if (apiToken.isBlank()) {
                                     errorMessage = emptyTokenMsg
-                                    return@Button
+                                    return@BouncyButton
                                 }
                                 errorMessage = null
                                 isDeploying = true

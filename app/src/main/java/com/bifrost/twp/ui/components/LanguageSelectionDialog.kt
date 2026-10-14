@@ -34,7 +34,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import com.bifrost.twp.ui.components.motion.BifrostModalDialog
+import com.bifrost.twp.ui.components.motion.BouncyButton
+import com.bifrost.twp.ui.components.motion.bounceClick
 import androidx.compose.ui.window.DialogProperties
 import com.bifrost.twp.R
 import com.bifrost.twp.ui.theme.BifrostTheme
@@ -54,10 +56,10 @@ fun LanguageSelectionDialog(
 ) {
     var selectedLanguage by remember { mutableStateOf(initialLanguage) }
 
-    Dialog(
+    BifrostModalDialog(
         onDismissRequest = {}, // Non-dismissible on first run
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
-    ) {
+    ) { dismissWithAnimation ->
         BifrostTheme(language = selectedLanguage) {
             Box(
                 modifier = Modifier
@@ -124,8 +126,10 @@ fun LanguageSelectionDialog(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Confirm Button
-                    Button(
-                        onClick = { onLanguageConfirmed(selectedLanguage) },
+                    BouncyButton(
+                        onClick = {
+                            dismissWithAnimation { onLanguageConfirmed(selectedLanguage) }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(46.dp),
@@ -164,7 +168,7 @@ private fun LanguageOptionCard(
             .clip(RoundedCornerShape(12.dp))
             .background(DarkBackground.copy(alpha = bgAlpha))
             .border(if (isSelected) 1.5.dp else 1.dp, borderColor, RoundedCornerShape(12.dp))
-            .clickable { onClick() }
+            .bounceClick(scaleDown = 0.97f) { onClick() }
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
